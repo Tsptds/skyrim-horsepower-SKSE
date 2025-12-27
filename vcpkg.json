@@ -1,14 +1,20 @@
 {
   "$schema": "https://raw.githubusercontent.com/microsoft/vcpkg-tool/main/docs/vcpkg.schema.json",
-  "name": "skse-clibng-template",
-  "version-string": "0.0.1",
-  "description": "SKSE CommonLibSSE-NG Template",
-  "homepage": "https://github.com/epinter/skse-clibng-template",
+  "name": "horsepower-ragdoll-plugin",
+  "version-string": "1.0.0",
+  "description": "Allow horses to ragdoll",
+  "homepage": "https://github.com/Tsptds/skyrim-horsepower-ragdoll",
   "features": {
     "plugin": {
       "description": "SKSE plugin",
       "dependencies": [
-        "commonlibsse-ng",
+		{
+          "name": "vcpkg-cmake-config",
+          "host": true
+        },
+        "directxmath",
+        "directxtk",
+        "rapidcsv",
         "spdlog",
         "boost-algorithm"
       ]
