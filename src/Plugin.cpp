@@ -1,9 +1,9 @@
+#include "Hooks.hpp"
+#include "Plugin.h"
+
 using namespace SKSE;
 using namespace SKSE::log;
 using namespace SKSE::stl;
-
-#include "Plugin.h"
-#include "GameEventHandler.h"
 
 namespace plugin {
     std::optional<std::filesystem::path> getLogDirectory() {
@@ -17,14 +17,18 @@ namespace plugin {
         if (exists("steam_api64.dll"sv)) {
             if (exists("openvr_api.dll") || exists("Data/SkyrimVR.esm")) {
                 directory.append("Skyrim VR"sv);
-            } else {
+            }
+            else {
                 directory.append("Skyrim Special Edition"sv);
             }
-        } else if (exists("Galaxy64.dll"sv)) {
+        }
+        else if (exists("Galaxy64.dll"sv)) {
             directory.append("Skyrim Special Edition GOG"sv);
-        } else if (exists("eossdk-win64-shipping.dll"sv)) {
+        }
+        else if (exists("eossdk-win64-shipping.dll"sv)) {
             directory.append("Skyrim Special Edition EPIC"sv);
-        } else {
+        }
+        else {
             return current_path().append("skselogs");
         }
         return directory.append("SKSE"sv).make_preferred();
@@ -40,7 +44,8 @@ namespace plugin {
         std::shared_ptr<spdlog::logger> log;
         if (IsDebuggerPresent()) {
             log = std::make_shared<spdlog::logger>("Global", std::make_shared<spdlog::sinks::msvc_sink_mt>());
-        } else {
+        }
+        else {
             log = std::make_shared<spdlog::logger>("Global", std::make_shared<spdlog::sinks::basic_file_sink_mt>(path->string(), true));
         }
         log->set_level(spdlog::level::info);
@@ -53,13 +58,19 @@ namespace plugin {
 
 using namespace plugin;
 
-extern "C" DLLEXPORT bool SKSEPlugin_Load(const LoadInterface* skse) {
+extern "C" DLLEXPORT bool SKSEPlugin_Load(const LoadInterface *skse) {
     initializeLogging();
 
-    logger::info("'{} {}' is loading, game version '{}'...", Plugin::Name, Plugin::VersionString, REL::Module::get().version().string());
-    Init(skse);
+    logger::info("'{} By {}' / Skyrim '{}'", Plugin::Name, Plugin::Author, REL::Module::get().version().string());
+    Init(skse, false);
 
-    GameEventHandler::getInstance().onLoad();
-    logger::info("{} has finished loading.", Plugin::Name);
+    SKSE::GetMessagingInterface()->RegisterListener([](SKSE::MessagingInterface::Message *msg) {
+        if (msg->type == SKSE::MessagingInterface::kPostLoad) {
+            Hooks::AnimationEventHook::InstallAnimEventHook();
+            Hooks::NotifyGraphHandler::InstallGraphNotifyHook();
+        }
+    });
+
+    logger::info("{} loaded", Plugin::Name);
     return true;
 }
