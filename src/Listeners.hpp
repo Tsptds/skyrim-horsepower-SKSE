@@ -10,6 +10,14 @@ namespace Listeners {
         return RE::hkVector4(vec.x, vec.y, vec.z, 0);
     }
 
+    inline static void Normalize2D(RE::NiPoint3 &v) {
+        float len = std::sqrt(v.x * v.x + v.y * v.y);
+        if (len > 1e-4f) {
+            v.x /= len;
+            v.y /= len;
+        }
+    }
+
     class ButtonEventListener : public RE::BSTEventSink<RE::InputEvent *> {
         public:
             static ButtonEventListener *GetSingleton() {
@@ -60,6 +68,15 @@ namespace Listeners {
 
             const auto horse = mnt.get();
 
+            // if (horse->IsInMidair() && event->AsButtonEvent()->GetUserEvent() == RE::UserEvents::GetSingleton()->jump) {
+            //     const auto &ctrl = horse->GetCharController();
+            //     ctrl->jumpHeight = 5.0f;
+
+            //     horse->SetGraphVariableInt("TurnDeltaDamped", 0);
+            //     ctrl->context.currentState = RE::hkpCharacterStateType::kJumping;
+            //     ctrl->forwardVec = horse->NotifyAnimationGraph("forwardJumpStart");
+            // }
+
             // const auto facingDir = Vec4_To_Vec3(horse->GetCharController()->forwardVec * -1);
             // logger::info("Facing: {} {}", facingDir.x, facingDir.y);
             // const auto inputDir = RE::PlayerControls::GetSingleton()->data.moveInputVec;
@@ -67,7 +84,7 @@ namespace Listeners {
 
             // auto facing = Vec4_To_Vec3(horse->GetCharController()->forwardVec);
 
-            auto horseFwd = Vec4_To_Vec3(horse->GetCharController()->forwardVec * -1);
+            auto horseFwd = Vec4_To_Vec3(horse->GetCharController()->forwardVec * -1);  // This shit is inverted for some reason
 
             auto cam = RE::PlayerCamera::GetSingleton();
             auto camNode = cam->cameraRoot;
@@ -82,22 +99,25 @@ namespace Listeners {
 
             auto input = RE::NiPoint3(inputRaw.x, inputRaw.y, 0);
 
+            Normalize2D(input);
+            Normalize2D(horseCam);
+
             // signed angle
             float dot = std::clamp(horseCam.Dot(input), -1.0f, 1.0f);
             float crossZ = horseCam.x * input.y - horseCam.y * input.x;
 
-            if (dot <= -0.984) {  // ~170°
+            if (dot <= -0.5) {  // ~120°
                 if (crossZ > 0.0f)
                     horse->NotifyAnimationGraph("cannedTurnLeft180");
                 else
                     horse->NotifyAnimationGraph("cannedTurnRight180");
             }
-            else if (dot < -0.5) {  // ~90°
-                if (crossZ > 0.0f)
-                    horse->NotifyAnimationGraph("cannedTurnLeft90");
-                else
-                    horse->NotifyAnimationGraph("cannedTurnRight90");
-            }
+            // else if (dot < -0.087) {  // ~95°
+            //     if (crossZ > 0.0f)
+            //         horse->NotifyAnimationGraph("cannedTurnLeft90");
+            //     else
+            //         horse->NotifyAnimationGraph("cannedTurnRight90");
+            // }
         }
 
         return RE::BSEventNotifyControl::kContinue;
