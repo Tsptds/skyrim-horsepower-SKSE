@@ -1,4 +1,5 @@
 #include "Hooks.hpp"
+#include "Listeners.hpp"
 #include "Plugin.h"
 
 using namespace SKSE;
@@ -65,9 +66,19 @@ extern "C" DLLEXPORT bool SKSEPlugin_Load(const LoadInterface *skse) {
     Init(skse, false);
 
     SKSE::GetMessagingInterface()->RegisterListener([](SKSE::MessagingInterface::Message *msg) {
-        if (msg->type == SKSE::MessagingInterface::kPostLoad) {
-            Hooks::AnimationEventHook::InstallAnimEventHook();
-            Hooks::NotifyGraphHandler::InstallGraphNotifyHook();
+        switch (msg->type) {
+            case SKSE::MessagingInterface::kPostLoad:
+                Hooks::AnimationEventHook::InstallAnimEventHook();
+                Hooks::NotifyGraphHandler::InstallGraphNotifyHook();
+                break;
+
+            case SKSE::MessagingInterface::kDataLoaded:
+                Listeners::ButtonEventListener::GetSingleton()->Register();
+                break;
+
+            case SKSE::MessagingInterface::kPostLoadGame:
+                logger::info("Registered: {}", Listeners::ButtonEventListener::GetSingleton()->SinkRegistered);
+                break;
         }
     });
 
