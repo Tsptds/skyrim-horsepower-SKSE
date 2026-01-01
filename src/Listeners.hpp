@@ -106,11 +106,16 @@ namespace Listeners {
             float dot = std::clamp(horseCam.Dot(input), -1.0f, 1.0f);
             float crossZ = horseCam.x * input.y - horseCam.y * input.x;
 
+            // logger::info("{}", dot);
+
             if (dot <= -0.5) {  // ~120°
                 if (crossZ > 0.0f)
                     horse->NotifyAnimationGraph("cannedTurnLeft180");
                 else
                     horse->NotifyAnimationGraph("cannedTurnRight180");
+            }
+            else if (dot > 0.5f) {
+                horse->NotifyAnimationGraph("cannedTurnStop");  // Early exit
             }
             // else if (dot < -0.087) {  // ~95°
             //     if (crossZ > 0.0f)
