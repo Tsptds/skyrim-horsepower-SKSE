@@ -1,14 +1,7 @@
 #pragma once
+#include "VectorUtil.hpp"
 
 namespace Listeners {
-
-    inline static RE::NiPoint3 Vec4_To_Vec3(RE::hkVector4 vec) {
-        return RE::NiPoint3(vec.quad.m128_f32[0], vec.quad.m128_f32[1], vec.quad.m128_f32[2]);
-    }
-
-    inline static RE::hkVector4 Vec3_To_Vec4(RE::NiPoint3 vec) {
-        return RE::hkVector4(vec.x, vec.y, vec.z, 0);
-    }
 
     inline static void Normalize2D(RE::NiPoint3 &v) {
         float len = std::sqrt(v.x * v.x + v.y * v.y);
@@ -57,37 +50,21 @@ namespace Listeners {
     RE::BSEventNotifyControl ButtonEventListener::ProcessEvent(RE::InputEvent *const *a_event, RE::BSTEventSource<RE::InputEvent *> *) {
         if (!a_event) return RE::BSEventNotifyControl::kContinue;
 
-        // const auto &UE = RE::UserEvents::GetSingleton();
+        /* Canned 180 Turn logic, relative to camera, horse facing direction and input direction */
+
         const auto &pl = RE::PlayerCharacter::GetSingleton();
+        if (!pl->IsOnMount()) return RE::BSEventNotifyControl::kContinue;
 
         for (auto event = *a_event; event; event = event->next) {
-            if (!pl->GetCharController()) continue;
-
             RE::ActorPtr mnt;
             if (!pl->GetMount(mnt)) continue;
 
             const auto horse = mnt.get();
 
-            // if (horse->IsInMidair() && event->AsButtonEvent()->GetUserEvent() == RE::UserEvents::GetSingleton()->jump) {
-            //     const auto &ctrl = horse->GetCharController();
-            //     ctrl->jumpHeight = 5.0f;
+            const auto horseFwd = Util::Vec4_To_Vec3(horse->GetCharController()->forwardVec * -1);  // This shit is inverted for some reason
 
-            //     horse->SetGraphVariableInt("TurnDeltaDamped", 0);
-            //     ctrl->context.currentState = RE::hkpCharacterStateType::kJumping;
-            //     ctrl->forwardVec = horse->NotifyAnimationGraph("forwardJumpStart");
-            // }
-
-            // const auto facingDir = Vec4_To_Vec3(horse->GetCharController()->forwardVec * -1);
-            // logger::info("Facing: {} {}", facingDir.x, facingDir.y);
-            // const auto inputDir = RE::PlayerControls::GetSingleton()->data.moveInputVec;
-            // logger::info("Inputting: {} {}", inputDir.x, inputDir.y);
-
-            // auto facing = Vec4_To_Vec3(horse->GetCharController()->forwardVec);
-
-            auto horseFwd = Vec4_To_Vec3(horse->GetCharController()->forwardVec * -1);  // This shit is inverted for some reason
-
-            auto cam = RE::PlayerCamera::GetSingleton();
-            auto camNode = cam->cameraRoot;
+            const auto &cam = RE::PlayerCamera::GetSingleton();
+            const auto &camNode = cam->cameraRoot;
             RE::NiPoint3 camForward = camNode->world.rotate * RE::NiPoint3{0, 1, 0};
             RE::NiPoint3 camRight = camNode->world.rotate * RE::NiPoint3{1, 0, 0};
 
@@ -117,6 +94,8 @@ namespace Listeners {
             else if (dot > 0.5f) {
                 horse->NotifyAnimationGraph("cannedTurnStop");  // Early exit
             }
+
+            /* 90 is annoying */
             // else if (dot < -0.087) {  // ~95°
             //     if (crossZ > 0.0f)
             //         horse->NotifyAnimationGraph("cannedTurnLeft90");

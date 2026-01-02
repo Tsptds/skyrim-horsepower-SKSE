@@ -1,4 +1,6 @@
 #pragma once
+#include "VectorUtil.hpp"
+#include "RayCastUtil.hpp"
 
 namespace Hooks {
     class AnimationEventHook {
@@ -20,16 +22,59 @@ namespace Hooks {
         private:
             static inline RE::BSEventNotifyControl Hook(RE::BSAnimationGraphManager *a_this, const RE::BSAnimationGraphEvent *a_event,
                                                         RE::BSTEventSource<RE::BSAnimationGraphEvent> *a_eventSource) {
+                constexpr auto kContinue = RE::BSEventNotifyControl::kContinue;
+
                 const auto &actor = a_this->graphs[a_this->GetRuntimeData().activeGraph]->holder;
 
-                if (!actor) return RE::BSEventNotifyControl::kContinue;
+                if (!actor || !actor->IsHorse()) return kContinue;
+                const auto &ev = a_event->tag;
 
-                if (a_event->tag == "GetUpEnd") {
+                /* Ragdoll enable activation */
+                if (ev == "GetUpEnd") {
                     if (actor->IsActivationBlocked()) {
                         // logger::info("Clearing block");
                         actor->SetActivationBlocked(false);
                     }
                 }
+
+                /* Sprinting force stop if stuck to an object */
+                else if (ev == "FootFront") {
+                    bool isSprinting;
+                    actor->GetGraphVariableBool("IsSprinting", isSprinting);
+
+                    if (!isSprinting) return kContinue;
+
+                    const auto fwdDir = Util::Vec4_To_Vec3(actor->GetCharController()->forwardVec * -1);
+
+                    RE::NiPoint3 vel;
+                    actor->GetLinearVelocity(vel);
+                    vel.z = 0;
+
+                    const auto fwdVel = vel * fwdDir;
+                    // logger::info("speed: {}", fwdVel);
+
+                    if (fwdVel < 50) {
+                        actor->NotifyAnimationGraph("IdleRearUp");
+                    }
+                }
+
+                /* Horse Sliding fix */
+                else if (ev == "_StillFalling") {
+                    const Util::RayCastResult ray =
+                        Util::RayCast(actor->GetPosition(), RE::NiPoint3(0, 0, -1), 50.f, RE::COL_LAYER::kTransparent, actor);
+
+                    // logger::info("{}", ray.distance);
+                    if (ray.didHit) {
+                        actor->NotifyAnimationGraph("LandStart");
+                    }
+                }
+
+                else if (ev == "_ForwardJumpEnter") {
+                    auto &JH = actor->GetCharController()->jumpHeight;
+                    // logger::info("{}", JH);
+                    JH = 2.f;  // Default 1.08585
+                }
+
                 return _ProcessEvent(a_this, a_event, a_eventSource);
             }
 
@@ -58,26 +103,30 @@ bool Hooks::NotifyGraphHandler::InstallGraphNotifyHook() {
 }
 
 bool Hooks::NotifyGraphHandler::OnCharacter(RE::IAnimationGraphManagerHolder *a_this, const RE::BSFixedString &a_eventName) {
+    RE::BSAnimationGraphManagerPtr mngr;
+    a_this->GetAnimationGraphManager(mngr);
+    const auto &actor = mngr->graphs[0]->holder;
+    if (!actor->IsHorse()) {
+        return _origCharacter(a_this, a_eventName);
+    }
+
+    /* Ragdoll block activation */
     if (a_eventName == "Ragdoll") {
         // LOG("RAGDOLL");
-        RE::BSAnimationGraphManagerPtr mngr;
-        a_this->GetAnimationGraphManager(mngr);
-        const auto &actor = mngr->graphs[0]->holder;
 
-        if (actor->IsHorse()) {
-            RE::ActorPtr riderPtr;
-            if (actor->GetMountedBy(riderPtr) && riderPtr) {
-                // logger::info("Knocked rider {}", riderPtr->GetDisplayFullName());
+        RE::ActorPtr riderPtr;
+        if (actor->GetMountedBy(riderPtr) && riderPtr) {
+            // logger::info("Knocked rider {}", riderPtr->GetDisplayFullName());
 
-                RE::Actor *rider = riderPtr.get();
+            RE::Actor *rider = riderPtr.get();
 
-                actor->GetActorRuntimeData().currentProcess->KnockExplosion(rider, rider->GetPosition(), 10.f);
-            }
+            /* Knock rider or its animations go crazy */
+            actor->GetActorRuntimeData().currentProcess->KnockExplosion(rider, rider->GetPosition(), 10.f);
+        }
 
-            if (!actor->IsActivationBlocked()) {
-                actor->SetActivationBlocked(true);
-                // logger::info("blocked activation on {}", actor->GetDisplayFullName());
-            }
+        if (!actor->IsActivationBlocked()) {
+            actor->SetActivationBlocked(true);
+            // logger::info("blocked activation on {}", actor->GetDisplayFullName());
         }
     }
 
