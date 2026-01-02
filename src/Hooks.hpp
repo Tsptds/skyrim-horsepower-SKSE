@@ -61,7 +61,7 @@ namespace Hooks {
                 /* Horse Sliding fix */
                 else if (ev == "_StillFalling") {
                     const Util::RayCastResult ray =
-                        Util::RayCast(actor->GetPosition(), RE::NiPoint3(0, 0, -1), 50.f, RE::COL_LAYER::kTransparent, actor);
+                        Util::RayCast(actor->GetPosition(), RE::NiPoint3(0, 0, -1), 35.f, RE::COL_LAYER::kTransparent, actor);
 
                     // logger::info("{}", ray.distance);
                     if (ray.didHit) {
@@ -69,10 +69,10 @@ namespace Hooks {
                     }
                 }
 
-                else if (ev == "_ForwardJumpEnter") {
+                else if (ev == "jumpBegin") {
                     auto &JH = actor->GetCharController()->jumpHeight;
                     // logger::info("{}", JH);
-                    JH = 2.f;  // Default 1.08585
+                    JH = 1.2f;  // Default 1.08585
                 }
 
                 return _ProcessEvent(a_this, a_event, a_eventSource);
