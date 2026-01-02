@@ -59,9 +59,12 @@ namespace Listeners {
             RE::ActorPtr mnt;
             if (!pl->GetMount(mnt)) continue;
 
-            const auto horse = mnt.get();
+            const auto &horse = mnt.get();
+            const auto &ctrl = horse->GetCharController();
 
-            const auto horseFwd = Util::Vec4_To_Vec3(horse->GetCharController()->forwardVec * -1);  // This shit is inverted for some reason
+            if (!ctrl) continue;
+
+            const auto horseFwd = Util::Vec4_To_Vec3(ctrl->forwardVec * -1);  // This shit is inverted for some reason
 
             const auto &cam = RE::PlayerCamera::GetSingleton();
             const auto &camNode = cam->cameraRoot;
