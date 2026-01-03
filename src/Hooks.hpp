@@ -30,7 +30,7 @@ namespace Hooks {
                 const auto &ev = a_event->tag;
 
                 /* Ragdoll enable activation */
-                if (ev == "GetUpEnd") {
+                if (ev == "GetUpEnd" || ev == "RemoveCharacterControllerFromWorld") {
                     if (actor->IsActivationBlocked()) {
                         // logger::info("Clearing block");
                         actor->SetActivationBlocked(false);
