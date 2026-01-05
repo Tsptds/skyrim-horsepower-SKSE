@@ -88,23 +88,26 @@ namespace Listeners {
 
             // logger::info("{}", dot);
 
+            // Cancel even if inputting direction stops, player only behavior
+
             if (dot <= -0.5) {  // ~120°
                 if (crossZ > 0.0f)
                     horse->NotifyAnimationGraph("cannedTurnLeft180");
                 else
                     horse->NotifyAnimationGraph("cannedTurnRight180");
             }
-            else if (dot > 0.5f) {
+            else if (dot <= 0) {  // ~90°
+                if (crossZ > 0.0f)
+                    horse->NotifyAnimationGraph("cannedTurnLeft90");
+                else
+                    horse->NotifyAnimationGraph("cannedTurnRight90");
+            }
+
+            if (dot > 0.4f) {
                 horse->NotifyAnimationGraph("cannedTurnStop");  // Early exit
             }
 
             /* 90 is annoying */
-            // else if (dot < -0.087) {  // ~95°
-            //     if (crossZ > 0.0f)
-            //         horse->NotifyAnimationGraph("cannedTurnLeft90");
-            //     else
-            //         horse->NotifyAnimationGraph("cannedTurnRight90");
-            // }
         }
 
         return RE::BSEventNotifyControl::kContinue;
