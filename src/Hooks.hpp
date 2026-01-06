@@ -110,10 +110,16 @@ bool Hooks::NotifyGraphHandler::InstallGraphNotifyHook() {
 bool Hooks::NotifyGraphHandler::OnCharacter(RE::IAnimationGraphManagerHolder *a_this, const RE::BSFixedString &a_eventName) {
     RE::BSAnimationGraphManagerPtr mngr;
     a_this->GetAnimationGraphManager(mngr);
-    const auto &actor = mngr->graphs[0]->holder;
-    if (!actor->IsHorse()) {
-        return _origCharacter(a_this, a_eventName);
-    }
+
+    if (!mngr) _origCharacter(a_this, a_eventName);
+
+    const auto graph = mngr->graphs[0];
+
+    if (!graph) _origCharacter(a_this, a_eventName);
+
+    const auto &actor = graph->holder;
+
+    if (!actor->IsHorse()) return _origCharacter(a_this, a_eventName);
 
     /* Ragdoll block activation */
     if (a_eventName == "Ragdoll") {
