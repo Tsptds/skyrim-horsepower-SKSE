@@ -31,9 +31,15 @@ namespace Hooks {
                 const auto &ev = a_event->tag;
 
                 /* Ragdoll enable activation */
-                if (ev == "GetUpEnd" || ev == "RemoveCharacterControllerFromWorld") {
+                if (ev == "GetUpEnd") {
                     if (actor->IsActivationBlocked()) {
                         // logger::info("Clearing block");
+                        actor->SetActivationBlocked(false);
+                    }
+                }
+                /* TODO: If horse dies after ragdolling first, activation stays blocked*/
+                else if (ev == "RemoveCharacterControllerFromWorld") {
+                    if (actor->IsDead() && actor->IsActivationBlocked()) {
                         actor->SetActivationBlocked(false);
                     }
                 }
