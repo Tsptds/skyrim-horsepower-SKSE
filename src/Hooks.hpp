@@ -113,7 +113,7 @@ bool Hooks::NotifyGraphHandler::OnCharacter(RE::IAnimationGraphManagerHolder *a_
 
     if (!mngr) _origCharacter(a_this, a_eventName);
 
-    const auto graph = mngr->graphs[0];
+    const auto &graph = mngr->graphs[0];
 
     if (!graph) _origCharacter(a_this, a_eventName);
 
