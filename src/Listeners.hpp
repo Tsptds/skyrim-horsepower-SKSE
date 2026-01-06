@@ -35,7 +35,7 @@ namespace Listeners {
         if (inputManager) {
             inputManager->AddEventSink(ButtonEventListener::GetSingleton());
             ButtonEventListener::GetSingleton()->SinkRegistered = true;
-            logger::info("Buttons - Listening");
+            // logger::info("Buttons - Listening");
         }
     }
     void ButtonEventListener::Unregister() {
@@ -64,6 +64,12 @@ namespace Listeners {
 
             if (!ctrl) continue;
 
+            bool isIdle;
+            horse->GetGraphVariableBool("_HORSE_IsNonCombatIdle", isIdle);
+
+            bool turning;
+            horse->GetGraphVariableBool("_Horse_IsCannedTurn", turning);
+
             const auto horseFwd = Util::Vec4_To_Vec3(ctrl->forwardVec * -1);  // This shit is inverted for some reason
 
             const auto &cam = RE::PlayerCamera::GetSingleton();
@@ -75,7 +81,15 @@ namespace Listeners {
             RE::NiPoint3 horseCam{horseFwd.Dot(camRight), horseFwd.Dot(camForward), 0.0f};
 
             auto inputRaw = RE::PlayerControls::GetSingleton()->data.moveInputVec;
-            if (inputRaw.Length() < 0.05f) continue;
+
+            /* Not Pressing the button & should cancel early */
+            if (inputRaw.Length() < 0.05f) {
+                if (turning) {
+                    horse->NotifyAnimationGraph("cannedTurnStop");  // Early exit
+                }
+
+                continue;
+            }
 
             auto input = RE::NiPoint3(inputRaw.x, inputRaw.y, 0);
 
@@ -88,26 +102,25 @@ namespace Listeners {
 
             // logger::info("{}", dot);
 
-            // Cancel even if inputting direction stops, player only behavior
-
-            if (dot <= -0.5) {  // ~120°
-                if (crossZ > 0.0f)
-                    horse->NotifyAnimationGraph("cannedTurnLeft180");
-                else
-                    horse->NotifyAnimationGraph("cannedTurnRight180");
-            }
-            else if (dot <= 0) {  // ~90°
-                if (crossZ > 0.0f)
-                    horse->NotifyAnimationGraph("cannedTurnLeft90");
-                else
-                    horse->NotifyAnimationGraph("cannedTurnRight90");
-            }
-
-            if (dot > 0.4f) {
+            /* Still pressing the button and should cancel early */
+            if (turning && dot > 0.4f) {
                 horse->NotifyAnimationGraph("cannedTurnStop");  // Early exit
             }
 
-            /* 90 is annoying */
+            else if (isIdle) {
+                if (dot <= -0.5) {  // ~120°
+                    if (crossZ > 0.0f)
+                        horse->NotifyAnimationGraph("cannedTurnLeft180");
+                    else
+                        horse->NotifyAnimationGraph("cannedTurnRight180");
+                }
+                else if (dot <= 0) {  // ~90°
+                    if (crossZ > 0.0f)
+                        horse->NotifyAnimationGraph("cannedTurnLeft90");
+                    else
+                        horse->NotifyAnimationGraph("cannedTurnRight90");
+                }
+            }
         }
 
         return RE::BSEventNotifyControl::kContinue;

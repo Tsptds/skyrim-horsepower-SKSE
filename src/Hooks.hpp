@@ -1,6 +1,7 @@
 #pragma once
 #include "VectorUtil.hpp"
 #include "RayCastUtil.hpp"
+#include "Listeners.hpp"
 
 namespace Hooks {
     class AnimationEventHook {
@@ -93,9 +94,11 @@ namespace Hooks {
         private:
             // Callbacks
             static bool OnCharacter(RE::IAnimationGraphManagerHolder *a_this, const RE::BSFixedString &a_eventName);
+            static bool OnPlayer(RE::IAnimationGraphManagerHolder *a_this, const RE::BSFixedString &a_eventName);
 
             // Originals
             static inline REL::Relocation<decltype(OnCharacter)> _origCharacter;
+            static inline REL::Relocation<decltype(OnPlayer)> _origPlayer;
     };
 }  // namespace Hooks
 
@@ -103,6 +106,10 @@ bool Hooks::NotifyGraphHandler::InstallGraphNotifyHook() {
     // Character
     REL::Relocation<uintptr_t> vtblChar{RE::VTABLE_Character[3]};
     _origCharacter = vtblChar.write_vfunc(0x1, OnCharacter);
+
+    // Player
+    REL::Relocation<uintptr_t> vtblPlayer{RE::VTABLE_PlayerCharacter[3]};
+    _origPlayer = vtblPlayer.write_vfunc(0x1, OnPlayer);
 
     return true;
 }
@@ -142,6 +149,21 @@ bool Hooks::NotifyGraphHandler::OnCharacter(RE::IAnimationGraphManagerHolder *a_
     }
 
     // LOG(">> Char Anim Event: {}", a_eventName.c_str());
-    bool result = _origCharacter(a_this, a_eventName);
-    return result;
+    return _origCharacter(a_this, a_eventName);
+}
+
+bool Hooks::NotifyGraphHandler::OnPlayer(RE::IAnimationGraphManagerHolder *a_this, const RE::BSFixedString &a_eventName) {
+    if (a_eventName == "HorseEnter") {
+        Listeners::ButtonEventListener::GetSingleton()->Register();
+        // logger::info("HORSE ENTER {}", Listeners::ButtonEventListener::GetSingleton()->SinkRegistered);
+        return _origPlayer(a_this, a_eventName);
+    }
+
+    if (a_eventName == "HorseExit") {
+        Listeners::ButtonEventListener::GetSingleton()->Unregister();
+        // logger::info("HORSE EXIT {}", Listeners::ButtonEventListener::GetSingleton()->SinkRegistered);
+        return _origPlayer(a_this, a_eventName);
+    }
+
+    return _origPlayer(a_this, a_eventName);
 }

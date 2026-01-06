@@ -72,12 +72,21 @@ extern "C" DLLEXPORT bool SKSEPlugin_Load(const LoadInterface *skse) {
                 Hooks::NotifyGraphHandler::InstallGraphNotifyHook();
                 break;
 
-            case SKSE::MessagingInterface::kDataLoaded:
-                Listeners::ButtonEventListener::GetSingleton()->Register();
-                break;
+                // case SKSE::MessagingInterface::kDataLoaded:
+                //     Listeners::ButtonEventListener::GetSingleton()->Register();
+                //     break;
 
             case SKSE::MessagingInterface::kPostLoadGame:
-                logger::info("Registered: {}", Listeners::ButtonEventListener::GetSingleton()->SinkRegistered);
+                if (RE::PlayerCharacter::GetSingleton()->IsOnMount()) {
+                    Listeners::ButtonEventListener::GetSingleton()->Register();
+                }
+
+            case SKSE::MessagingInterface::kPreLoadGame:
+                if (RE::PlayerCharacter::GetSingleton()->IsOnMount()) {
+                    Listeners::ButtonEventListener::GetSingleton()->Unregister();
+                }
+
+                // logger::info("Registered: {}", Listeners::ButtonEventListener::GetSingleton()->SinkRegistered);
                 break;
         }
     });
