@@ -73,9 +73,9 @@ extern "C" DLLEXPORT bool SKSEPlugin_Load(const LoadInterface *skse) {
                 Hooks::NotifyGraphHandler::InstallGraphNotifyHook();
                 break;
 
-                case SKSE::MessagingInterface::kDataLoaded:
-                    Listeners::DeathEventListener::GetSingleton()->Register();
-                    break;
+            case SKSE::MessagingInterface::kDataLoaded:
+                Listeners::DeathEventListener::GetSingleton()->Register();
+                break;
 
             case SKSE::MessagingInterface::kPostLoadGame:
                 if (RE::PlayerCharacter::GetSingleton()->IsOnMount()) {
@@ -87,11 +87,10 @@ extern "C" DLLEXPORT bool SKSEPlugin_Load(const LoadInterface *skse) {
                     Listeners::ButtonEventListener::GetSingleton()->Unregister();
                 }
 
-                // LOG("Registered: {}", Listeners::ButtonEventListener::GetSingleton()->SinkRegistered);
                 break;
         }
     });
 
-    LOG("{} loaded", Plugin::Name);
+    LOG(">_{} loaded_<|", Plugin::Name);
     return true;
 }
