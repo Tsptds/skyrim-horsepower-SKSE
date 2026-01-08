@@ -82,6 +82,8 @@ extern "C" DLLEXPORT bool SKSEPlugin_Load(const LoadInterface *skse) {
                     Listeners::ButtonEventListener::GetSingleton()->Register();
                 }
 
+                break;
+
             case SKSE::MessagingInterface::kPreLoadGame:
                 if (RE::PlayerCharacter::GetSingleton()->IsOnMount()) {
                     Listeners::ButtonEventListener::GetSingleton()->Unregister();
