@@ -1,5 +1,6 @@
 #include "Hooks.hpp"
-#include "Listeners.hpp"
+#include "ButtonEventListener.hpp"
+#include "DeathEventListener.hpp"
 #include "Plugin.h"
 
 using namespace SKSE;
@@ -62,7 +63,7 @@ using namespace plugin;
 extern "C" DLLEXPORT bool SKSEPlugin_Load(const LoadInterface *skse) {
     initializeLogging();
 
-    logger::info("'{} By {}' / Skyrim '{}'", Plugin::Name, Plugin::Author, REL::Module::get().version().string());
+    LOG("'{} By {}' / Skyrim '{}'", Plugin::Name, Plugin::Author, REL::Module::get().version().string());
     Init(skse, false);
 
     SKSE::GetMessagingInterface()->RegisterListener([](SKSE::MessagingInterface::Message *msg) {
@@ -72,9 +73,9 @@ extern "C" DLLEXPORT bool SKSEPlugin_Load(const LoadInterface *skse) {
                 Hooks::NotifyGraphHandler::InstallGraphNotifyHook();
                 break;
 
-                // case SKSE::MessagingInterface::kDataLoaded:
-                //     Listeners::ButtonEventListener::GetSingleton()->Register();
-                //     break;
+                case SKSE::MessagingInterface::kDataLoaded:
+                    Listeners::DeathEventListener::GetSingleton()->Register();
+                    break;
 
             case SKSE::MessagingInterface::kPostLoadGame:
                 if (RE::PlayerCharacter::GetSingleton()->IsOnMount()) {
@@ -86,11 +87,11 @@ extern "C" DLLEXPORT bool SKSEPlugin_Load(const LoadInterface *skse) {
                     Listeners::ButtonEventListener::GetSingleton()->Unregister();
                 }
 
-                // logger::info("Registered: {}", Listeners::ButtonEventListener::GetSingleton()->SinkRegistered);
+                // LOG("Registered: {}", Listeners::ButtonEventListener::GetSingleton()->SinkRegistered);
                 break;
         }
     });
 
-    logger::info("{} loaded", Plugin::Name);
+    LOG("{} loaded", Plugin::Name);
     return true;
 }

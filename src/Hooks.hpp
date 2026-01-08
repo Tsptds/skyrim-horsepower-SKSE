@@ -1,7 +1,7 @@
 #pragma once
 #include "VectorUtil.hpp"
 #include "RayCastUtil.hpp"
-#include "Listeners.hpp"
+#include "ButtonEventListener.hpp"
 
 namespace Hooks {
     class AnimationEventHook {
@@ -33,13 +33,7 @@ namespace Hooks {
                 /* Ragdoll enable activation */
                 if (ev == "GetUpEnd") {
                     if (actor->IsActivationBlocked()) {
-                        // logger::info("Clearing block");
-                        actor->SetActivationBlocked(false);
-                    }
-                }
-                /* TODO: If horse dies after ragdolling first, activation stays blocked*/
-                else if (ev == "RemoveCharacterControllerFromWorld") {
-                    if (actor->IsDead() && actor->IsActivationBlocked()) {
+                        // LOG("Clearing block");
                         actor->SetActivationBlocked(false);
                     }
                 }
@@ -58,7 +52,7 @@ namespace Hooks {
                     vel.z = 0;
 
                     const auto fwdVel = vel * fwdDir;
-                    // logger::info("speed: {}", fwdVel);
+                    // LOG("speed: {}", fwdVel);
 
                     if (fwdVel < 50) {
                         actor->NotifyAnimationGraph("IdleRearUp");
@@ -70,7 +64,7 @@ namespace Hooks {
                     const Util::RayCastResult ray =
                         Util::RayCast(actor->GetPosition(), RE::NiPoint3(0, 0, -1), 35.f, RE::COL_LAYER::kTransparent, actor);
 
-                    // logger::info("{}", ray.distance);
+                    // LOG("{}", ray.distance);
                     if (ray.didHit) {
                         actor->NotifyAnimationGraph("LandStart");
                     }
@@ -79,7 +73,7 @@ namespace Hooks {
                 else if (ev == "jumpBegin") {
                     const auto &ctrl = actor->GetCharController();
                     auto &JH = ctrl->jumpHeight;
-                    // logger::info("{}", JH);
+                    // LOG("{}", JH);
                     // Luckily event fires after jump height is set, so I can overwrite it here, it's set for every jump individually
                     bool isStandingjump;
                     actor->GetGraphVariableBool("_HORSE_IncreasedJump", isStandingjump);
@@ -140,7 +134,7 @@ bool Hooks::NotifyGraphHandler::OnCharacter(RE::IAnimationGraphManagerHolder *a_
 
         RE::ActorPtr riderPtr;
         if (actor->GetMountedBy(riderPtr) && riderPtr) {
-            // logger::info("Knocked rider {}", riderPtr->GetDisplayFullName());
+            // LOG("Knocked rider {}", riderPtr->GetDisplayFullName());
 
             RE::Actor *rider = riderPtr.get();
 
@@ -150,7 +144,7 @@ bool Hooks::NotifyGraphHandler::OnCharacter(RE::IAnimationGraphManagerHolder *a_
 
         if (!actor->IsActivationBlocked()) {
             actor->SetActivationBlocked(true);
-            // logger::info("blocked activation on {}", actor->GetDisplayFullName());
+            // LOG("blocked activation on {}", actor->GetDisplayFullName());
         }
     }
 
@@ -161,13 +155,13 @@ bool Hooks::NotifyGraphHandler::OnCharacter(RE::IAnimationGraphManagerHolder *a_
 bool Hooks::NotifyGraphHandler::OnPlayer(RE::IAnimationGraphManagerHolder *a_this, const RE::BSFixedString &a_eventName) {
     if (a_eventName == "HorseEnter") {
         Listeners::ButtonEventListener::GetSingleton()->Register();
-        // logger::info("HORSE ENTER {}", Listeners::ButtonEventListener::GetSingleton()->SinkRegistered);
+        // LOG("HORSE ENTER {}", Listeners::ButtonEventListener::GetSingleton()->SinkRegistered);
         return _origPlayer(a_this, a_eventName);
     }
 
     if (a_eventName == "HorseExit") {
         Listeners::ButtonEventListener::GetSingleton()->Unregister();
-        // logger::info("HORSE EXIT {}", Listeners::ButtonEventListener::GetSingleton()->SinkRegistered);
+        // LOG("HORSE EXIT {}", Listeners::ButtonEventListener::GetSingleton()->SinkRegistered);
         return _origPlayer(a_this, a_eventName);
     }
 

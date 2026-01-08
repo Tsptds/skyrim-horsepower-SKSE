@@ -160,3 +160,9 @@
 
 using namespace std::literals;
 namespace logger = SKSE::log;
+
+/* Log macros */
+#define LOG(x, ...) logger::info(x, __VA_ARGS__)
+#define WARN(x, ...) logger::warn(x, __VA_ARGS__)
+#define ERROR(x, ...) logger::error(x, __VA_ARGS__)
+#define CRITICAL(x, ...) logger::error(x, __VA_ARGS__)

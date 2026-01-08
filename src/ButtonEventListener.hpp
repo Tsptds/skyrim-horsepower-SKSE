@@ -3,15 +3,7 @@
 
 namespace Listeners {
 
-    inline static void Normalize2D(RE::NiPoint3 &v) {
-        float len = std::sqrt(v.x * v.x + v.y * v.y);
-        if (len > 1e-4f) {
-            v.x /= len;
-            v.y /= len;
-        }
-    }
-
-    class ButtonEventListener : public RE::BSTEventSink<RE::InputEvent *> {
+        class ButtonEventListener : public RE::BSTEventSink<RE::InputEvent *> {
         public:
             static ButtonEventListener *GetSingleton() {
                 static ButtonEventListener singleton;
@@ -21,7 +13,7 @@ namespace Listeners {
             static void Register();
             static void Unregister();
 
-            bool SinkRegistered;
+            bool SinkRegistered = false;
 
         private:
             virtual RE::BSEventNotifyControl ProcessEvent(RE::InputEvent *const *a_event, RE::BSTEventSource<RE::InputEvent *> *) override;
@@ -35,7 +27,7 @@ namespace Listeners {
         if (inputManager) {
             inputManager->AddEventSink(ButtonEventListener::GetSingleton());
             ButtonEventListener::GetSingleton()->SinkRegistered = true;
-            // logger::info("Buttons - Listening");
+            // LOG("Buttons - Listening");
         }
     }
     void ButtonEventListener::Unregister() {
@@ -93,14 +85,14 @@ namespace Listeners {
 
             auto input = RE::NiPoint3(inputRaw.x, inputRaw.y, 0);
 
-            Normalize2D(input);
-            Normalize2D(horseCam);
+            Util::Normalize2D(input);
+            Util::Normalize2D(horseCam);
 
             // signed angle
             float dot = std::clamp(horseCam.Dot(input), -1.0f, 1.0f);
             float crossZ = horseCam.x * input.y - horseCam.y * input.x;
 
-            // logger::info("{}", dot);
+            // LOG("{}", dot);
 
             /* Still pressing the button and should cancel early */
             if (turning && dot > 0.4f) {
