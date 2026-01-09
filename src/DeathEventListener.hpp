@@ -15,18 +15,23 @@ namespace Listeners {
                 const auto &ref = a_event->actorDying;
                 if (!ref->IsActor()) return RE::BSEventNotifyControl::kContinue;
 
-                const auto &victim = ref->As<RE::Actor>();
-                if (!victim->IsHorse()) return RE::BSEventNotifyControl::kContinue;
+                if (!ref->IsHorse()) return RE::BSEventNotifyControl::kContinue;
 
-                if (victim->IsDead()) {
-                    // LOG("dead: {}", victim->GetDisplayFullName());
+                if (ref->IsDead() || ref->IsDead(false)) {
+#ifdef _DEBUG
+                    LOG("dead: {}", ref->GetDisplayFullName());
+#endif
                     return RE::BSEventNotifyControl::kContinue;  // It seems to fire both on dying and on dead
                 }
+#ifdef _DEBUG
+                LOG("dying: {}", ref->GetDisplayFullName());
+#endif
 
-                // LOG("dying: {}", victim->GetDisplayFullName());
-
-                if (victim->IsActivationBlocked()) {
-                    victim->SetActivationBlocked(false);
+                if (ref->IsActivationBlocked()) {
+#ifdef _DEBUG
+                    LOG("Unblocking {}", ref->GetDisplayFullName());
+#endif
+                    ref->SetActivationBlocked(false);
                 }
 
                 return RE::BSEventNotifyControl::kContinue;

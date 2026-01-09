@@ -3,7 +3,7 @@
 
 namespace Listeners {
 
-        class ButtonEventListener : public RE::BSTEventSink<RE::InputEvent *> {
+    class ButtonEventListener : public RE::BSTEventSink<RE::InputEvent *> {
         public:
             static ButtonEventListener *GetSingleton() {
                 static ButtonEventListener singleton;
@@ -27,7 +27,6 @@ namespace Listeners {
         if (inputManager) {
             inputManager->AddEventSink(ButtonEventListener::GetSingleton());
             ButtonEventListener::GetSingleton()->SinkRegistered = true;
-            // LOG("Buttons - Listening");
         }
     }
     void ButtonEventListener::Unregister() {
@@ -35,7 +34,6 @@ namespace Listeners {
         if (inputManager) {
             inputManager->RemoveEventSink(ButtonEventListener::GetSingleton());
             ButtonEventListener::GetSingleton()->SinkRegistered = false;
-            //LOG("Buttons - Not Listening");
         }
     }
 
@@ -57,7 +55,7 @@ namespace Listeners {
             if (!ctrl) continue;
 
             bool isIdle;
-            horse->GetGraphVariableBool("_HORSE_IsNonCombatIdle", isIdle);
+            horse->GetGraphVariableBool("_Horse_IsStandingIdle", isIdle);
 
             bool turning;
             horse->GetGraphVariableBool("_Horse_IsCannedTurn", turning);

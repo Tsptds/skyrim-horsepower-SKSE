@@ -33,7 +33,9 @@ namespace Hooks {
                 /* Ragdoll enable activation */
                 if (ev == "GetUpEnd") {
                     if (actor->IsActivationBlocked()) {
-                        // LOG("Clearing block");
+#ifdef _DEBUG
+                        LOG("GetUpEnd, clear block on {}", actor->GetDisplayFullName());
+#endif
                         actor->SetActivationBlocked(false);
                     }
                 }
@@ -118,11 +120,11 @@ bool Hooks::NotifyGraphHandler::OnCharacter(RE::IAnimationGraphManagerHolder *a_
     RE::BSAnimationGraphManagerPtr mngr;
     a_this->GetAnimationGraphManager(mngr);
 
-    if (!mngr) _origCharacter(a_this, a_eventName);
+    if (!mngr) return _origCharacter(a_this, a_eventName);
 
     const auto &graph = mngr->graphs[0];
 
-    if (!graph) _origCharacter(a_this, a_eventName);
+    if (!graph) return _origCharacter(a_this, a_eventName);
 
     const auto &actor = graph->holder;
 
@@ -132,9 +134,13 @@ bool Hooks::NotifyGraphHandler::OnCharacter(RE::IAnimationGraphManagerHolder *a_
     if (a_eventName == "Ragdoll") {
         // LOG("RAGDOLL");
 
+        if (actor->IsDead() || actor->IsDead(false)) return _origCharacter(a_this, a_eventName);
+
         RE::ActorPtr riderPtr;
         if (actor->GetMountedBy(riderPtr) && riderPtr) {
-            // LOG("Knocked rider {}", riderPtr->GetDisplayFullName());
+#ifdef _DEBUG
+            LOG("Knocked rider {}", riderPtr->GetDisplayFullName());
+#endif
 
             RE::Actor *rider = riderPtr.get();
 
@@ -144,7 +150,9 @@ bool Hooks::NotifyGraphHandler::OnCharacter(RE::IAnimationGraphManagerHolder *a_
 
         if (!actor->IsActivationBlocked()) {
             actor->SetActivationBlocked(true);
-            // LOG("blocked activation on {}", actor->GetDisplayFullName());
+#ifdef _DEBUG
+            LOG("blocked activation on {}", actor->GetDisplayFullName());
+#endif
         }
     }
 
@@ -154,15 +162,27 @@ bool Hooks::NotifyGraphHandler::OnCharacter(RE::IAnimationGraphManagerHolder *a_
 
 bool Hooks::NotifyGraphHandler::OnPlayer(RE::IAnimationGraphManagerHolder *a_this, const RE::BSFixedString &a_eventName) {
     if (a_eventName == "HorseEnter") {
-        Listeners::ButtonEventListener::GetSingleton()->Register();
-        // LOG("HORSE ENTER {}", Listeners::ButtonEventListener::GetSingleton()->SinkRegistered);
-        return _origPlayer(a_this, a_eventName);
+        bool res = _origPlayer(a_this, a_eventName);
+        if (res) {
+            Listeners::ButtonEventListener::GetSingleton()->Register();
+#ifdef _DEBUG
+            LOG("HORSE ENTER {}", Listeners::ButtonEventListener::GetSingleton()->SinkRegistered);
+#endif
+        }
+
+        return res;
     }
 
     if (a_eventName == "HorseExit") {
-        Listeners::ButtonEventListener::GetSingleton()->Unregister();
-        // LOG("HORSE EXIT {}", Listeners::ButtonEventListener::GetSingleton()->SinkRegistered);
-        return _origPlayer(a_this, a_eventName);
+        bool res = _origPlayer(a_this, a_eventName);
+        if (res) {
+            Listeners::ButtonEventListener::GetSingleton()->Unregister();
+#ifdef _DEBUG
+            LOG("HORSE EXIT {}", Listeners::ButtonEventListener::GetSingleton()->SinkRegistered);
+#endif
+        }
+
+        return res;
     }
 
     return _origPlayer(a_this, a_eventName);

@@ -71,22 +71,36 @@ extern "C" DLLEXPORT bool SKSEPlugin_Load(const LoadInterface *skse) {
             case SKSE::MessagingInterface::kPostLoad:
                 Hooks::AnimationEventHook::InstallAnimEventHook();
                 Hooks::NotifyGraphHandler::InstallGraphNotifyHook();
+#ifdef _DEBUG
+                LOG("Installed Hooks");
+#endif
                 break;
 
             case SKSE::MessagingInterface::kDataLoaded:
                 Listeners::DeathEventListener::GetSingleton()->Register();
+#ifdef _DEBUG
+                LOG("Death Event Listener Registered");
+#endif
                 break;
 
             case SKSE::MessagingInterface::kPostLoadGame:
                 if (RE::PlayerCharacter::GetSingleton()->IsOnMount()) {
+#ifdef _DEBUG
+                    LOG("Player on mount at save load");
+#endif
                     Listeners::ButtonEventListener::GetSingleton()->Register();
                 }
 
                 break;
 
             case SKSE::MessagingInterface::kPreLoadGame:
-                if (RE::PlayerCharacter::GetSingleton()->IsOnMount()) {
-                    Listeners::ButtonEventListener::GetSingleton()->Unregister();
+                const auto &btnEventListener = Listeners::ButtonEventListener::GetSingleton();
+
+                if (btnEventListener->SinkRegistered) {
+#ifdef _DEBUG
+                    LOG("Unregistered Button listener on game preload");
+#endif
+                    btnEventListener->Unregister();
                 }
 
                 break;
