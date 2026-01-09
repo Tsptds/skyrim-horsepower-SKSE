@@ -54,21 +54,30 @@ namespace Listeners {
 
             if (!ctrl) continue;
 
-            bool isIdle;
-            horse->GetGraphVariableBool("_Horse_IsStandingIdle", isIdle);
-
             bool turning;
             horse->GetGraphVariableBool("_Horse_IsCannedTurn", turning);
 
-            const auto horseFwd = Util::Vec4_To_Vec3(ctrl->forwardVec * -1);  // This shit is inverted for some reason
+            const auto &horseFwd = Util::Vec4_To_Vec3(ctrl->forwardVec * -1);  // This shit is inverted for some reason
 
-            const auto &cam = RE::PlayerCamera::GetSingleton();
-            const auto &camNode = cam->cameraRoot;
-            RE::NiPoint3 camForward = camNode->world.rotate * RE::NiPoint3{0, 1, 0};
-            RE::NiPoint3 camRight = camNode->world.rotate * RE::NiPoint3{1, 0, 0};
+            const auto &fwdVel = [horse, horseFwd] -> float {
+                RE::NiPoint3 vel;
+                horse->GetLinearVelocity(vel);
+                vel.z = 0;
 
-            // horse forward in camera space
-            RE::NiPoint3 horseCam{horseFwd.Dot(camRight), horseFwd.Dot(camForward), 0.0f};
+                return vel * horseFwd;
+            }();
+
+            auto &horseCam = [horseFwd] -> RE::NiPoint3 & {
+                const auto &cam = RE::PlayerCamera::GetSingleton();
+                const auto &camNode = cam->cameraRoot;
+                RE::NiPoint3 camForward = camNode->world.rotate * RE::NiPoint3{0, 1, 0};
+                RE::NiPoint3 camRight = camNode->world.rotate * RE::NiPoint3{1, 0, 0};
+
+                // horse forward in camera space
+                RE::NiPoint3 horseCam{horseFwd.Dot(camRight), horseFwd.Dot(camForward), 0.0f};
+
+                return horseCam;
+            }();
 
             auto inputRaw = RE::PlayerControls::GetSingleton()->data.moveInputVec;
 
@@ -97,7 +106,7 @@ namespace Listeners {
                 horse->NotifyAnimationGraph("cannedTurnStop");  // Early exit
             }
 
-            else if (isIdle) {
+            else if (fwdVel < 50.f) {
                 if (dot <= -0.5) {  // ~120°
                     if (crossZ > 0.0f)
                         horse->NotifyAnimationGraph("cannedTurnLeft180");
