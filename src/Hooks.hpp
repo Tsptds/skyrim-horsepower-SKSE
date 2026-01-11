@@ -128,6 +128,18 @@ bool Hooks::NotifyGraphHandler::OnCharacter(RE::IAnimationGraphManagerHolder *a_
 
     const auto &actor = graph->holder;
 
+    if (actor->IsOnMount()) {
+        if (a_eventName == "blockStart") {
+            const_cast<RE::BSFixedString &>(a_eventName) = "attackStart_MC_1HMLeft";
+            return _origCharacter(a_this, a_eventName);
+        }
+
+        else if (a_eventName == "blockStop") {
+            const_cast<RE::BSFixedString &>(a_eventName) = "attackReleaseLeft";
+            return _origCharacter(a_this, a_eventName);
+        }
+    }
+
     if (!actor->IsHorse()) return _origCharacter(a_this, a_eventName);
 
     /* Ragdoll block activation */
@@ -183,6 +195,15 @@ bool Hooks::NotifyGraphHandler::OnPlayer(RE::IAnimationGraphManagerHolder *a_thi
         }
 
         return res;
+    }
+
+    const auto &pl = RE::PlayerCharacter::GetSingleton();
+    if (pl->IsOnMount()) {
+        if (a_eventName == "blockStart")
+            const_cast<RE::BSFixedString &>(a_eventName) = "attackStart_MC_1HMLeft";
+
+        else if (a_eventName == "blockStop")
+            const_cast<RE::BSFixedString &>(a_eventName) = "attackReleaseLeft";
     }
 
     return _origPlayer(a_this, a_eventName);
