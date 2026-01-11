@@ -67,7 +67,7 @@ namespace Listeners {
                 return vel * horseFwd;
             }();
 
-            auto &horseCam = [horseFwd] -> RE::NiPoint3 & {
+            auto horseCam = [horseFwd] -> RE::NiPoint3 {
                 const auto &cam = RE::PlayerCamera::GetSingleton();
                 const auto &camNode = cam->cameraRoot;
                 RE::NiPoint3 camForward = camNode->world.rotate * RE::NiPoint3{0, 1, 0};
