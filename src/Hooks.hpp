@@ -2,6 +2,7 @@
 #include "VectorUtil.hpp"
 #include "RayCastUtil.hpp"
 #include "ButtonEventListener.hpp"
+#include "Fixes.hpp"
 
 namespace Hooks {
     class AnimationEventHook {
@@ -134,15 +135,7 @@ bool Hooks::NotifyGraphHandler::OnCharacter(RE::IAnimationGraphManagerHolder *a_
 
         // Graph sends bowZoomStart when blockStart fires, back into the game instead of handling on button event
         if (rightHandType != 7 && rightHandType != 12) {
-            if (a_eventName == "blockStart") {
-                const_cast<RE::BSFixedString &>(a_eventName) = "attackStart_MC_1HMLeft";
-                return _origCharacter(a_this, a_eventName);
-            }
-
-            else if (a_eventName == "blockStop") {
-                const_cast<RE::BSFixedString &>(a_eventName) = "attackReleaseLeft";
-                return _origCharacter(a_this, a_eventName);
-            }
+            Fixes::FixAttackAnnotationsAndHands(a_eventName);
         }
     }
 
@@ -210,15 +203,7 @@ bool Hooks::NotifyGraphHandler::OnPlayer(RE::IAnimationGraphManagerHolder *a_thi
 
         // Graph sends bowZoomStart when blockStart fires, back into the game instead of handling on button event
         if (rightHandType != 7 && rightHandType != 12) {
-            if (a_eventName == "blockStart") {
-                const_cast<RE::BSFixedString &>(a_eventName) = "attackStart_MC_1HMLeft";
-                return _origCharacter(a_this, a_eventName);
-            }
-
-            else if (a_eventName == "blockStop") {
-                const_cast<RE::BSFixedString &>(a_eventName) = "attackReleaseLeft";
-                return _origCharacter(a_this, a_eventName);
-            }
+            Fixes::FixAttackAnnotationsAndHands(a_eventName);
         }
     }
 
