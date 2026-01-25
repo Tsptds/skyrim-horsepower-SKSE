@@ -4,12 +4,6 @@
 
 namespace Fixes {
 
-    inline static void FixBowZoom(RE::Actor *actor) {
-        float bowZoom;
-        actor->GetGraphVariableFloat("bowZoom", bowZoom);
-        if (bowZoom > 0.f) actor->SetGraphVariableFloat("bowZoom", 0.f);
-    }
-
     class Attacks {
         private:
             using fix_t = void (*)(const RE::BSFixedString &a_eventName);
