@@ -9,7 +9,7 @@ namespace Util {
         int rightHandType;
         actor->GetGraphVariableInt("iRightHandType", rightHandType);
 
-        if (rightHandType != 7 && rightHandType != 12) return false;
+        if (rightHandType == 7 || rightHandType == 12) return false;
 
         /* Block unless drawn */
         return actor->AsActorState()->GetWeaponState() == RE::WEAPON_STATE::kDrawn;
