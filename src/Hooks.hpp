@@ -44,22 +44,24 @@ namespace Hooks {
 
                 /* Sprinting force stop if stuck to an object */
                 else if (ev == "FootFront") {
-                    bool isSprinting;
-                    actor->GetGraphVariableBool("IsSprinting", isSprinting);
+                    if (ModSettings::SprintInterruption.GetValue()) {
+                        bool isSprinting;
+                        actor->GetGraphVariableBool("IsSprinting", isSprinting);
 
-                    if (!isSprinting) return kContinue;
+                        if (!isSprinting) return kContinue;
 
-                    const auto fwdDir = Util::Vec4_To_Vec3(actor->GetCharController()->forwardVec * -1);
+                        const auto fwdDir = Util::Vec4_To_Vec3(actor->GetCharController()->forwardVec * -1);
 
-                    RE::NiPoint3 vel;
-                    actor->GetLinearVelocity(vel);
-                    vel.z = 0;
+                        RE::NiPoint3 vel;
+                        actor->GetLinearVelocity(vel);
+                        vel.z = 0;
 
-                    const auto fwdVel = vel * fwdDir;
-                    // LOG("speed: {}", fwdVel);
+                        const auto fwdVel = vel * fwdDir;
+                        // LOG("speed: {}", fwdVel);
 
-                    if (fwdVel < 50) {
-                        actor->NotifyAnimationGraph("IdleRearUp");
+                        if (fwdVel < 50) {
+                            actor->NotifyAnimationGraph("IdleRearUp");
+                        }
                     }
                 }
 
@@ -131,10 +133,10 @@ bool Hooks::NotifyGraphHandler::OnCharacter(RE::IAnimationGraphManagerHolder *a_
     const auto &actor = graph->holder;
 
     if (actor->IsOnMount()) {
-        if (Util::CheckShouldReplaceEvent(actor)) {
+        if (Util::IsAllowedToReplaceEvent(actor)) {
             Fixes::Attacks::ApplyFix(a_eventName);
         }
-        }
+    }
 
     if (!actor->IsHorse()) return _origCharacter(a_this, a_eventName);
 
@@ -195,7 +197,7 @@ bool Hooks::NotifyGraphHandler::OnPlayer(RE::IAnimationGraphManagerHolder *a_thi
 
     const auto &pl = RE::PlayerCharacter::GetSingleton();
     if (pl->IsOnMount()) {
-        if (Util::CheckShouldReplaceEvent(pl)) {
+        if (Util::IsAllowedToReplaceEvent(pl)) {
             Fixes::Attacks::ApplyFix(a_eventName);
         }
     }

@@ -3,7 +3,8 @@
 
 namespace ModSettings {
     REX::INI::SettingStore g_settingStore;
-    inline REX::INI::Bool SwapHands{"Settings", "bSwapAttackInputs", true};
+    // inline REX::INI::Bool SwapHands{"Settings", "bSwapAttackInputsPC", true};
+    inline REX::INI::Bool SprintInterruption{"Settings", "bEnableSprintInterruption", true};
 
     void ReadINI() {
         const auto ini = REX::INI::SettingStore::GetSingleton();

@@ -1,7 +1,7 @@
 #pragma once
 
 namespace Util {
-    bool CheckShouldReplaceEvent(RE::Actor *actor) {
+    bool IsAllowedToReplaceEvent(RE::Actor *actor) {
         // Graph sends bowZoomStart when blockStart fires, back into the game instead of handling on button event
         // blockStart-stop control slow motion, bowZoomStart-stop control camera zoom.
 
