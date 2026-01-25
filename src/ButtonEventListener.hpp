@@ -106,7 +106,7 @@ namespace Listeners {
                 horse->NotifyAnimationGraph("cannedTurnStop");  // Early exit
             }
 
-            else if (fwdVel < 50.f) {
+            else if (fwdVel < 200.f) {
                 if (dot <= -0.5) {  // ~120°
                     if (crossZ > 0.0f)
                         horse->NotifyAnimationGraph("cannedTurnLeft180");
