@@ -1,7 +1,8 @@
 #pragma once
+#include "REX/REX/INI.h"
+#include "ModSettings.h"
 
 namespace Fixes {
-    /* This is buggy, spamming the other hand during the wind up animation causes hitting to the other side, after committing to one */
     void FixAttackAnnotationsAndHands(const RE::BSFixedString &a_eventName) {
         if (a_eventName == "blockStart") {
             const_cast<RE::BSFixedString &>(a_eventName) = "attackStart_MC_1HMRight";
@@ -41,5 +42,19 @@ namespace Fixes {
         else if (a_eventName == "blockStop") {
             const_cast<RE::BSFixedString &>(a_eventName) = "attackReleaseL";
         }
+    }
+
+    using fix_t = void (*)(const RE::BSFixedString &a_eventName);
+    fix_t ApplyFix = nullptr;
+
+    void ReadINI() {
+        const auto ini = REX::INI::SettingStore::GetSingleton();
+        ini->Init("Data/SKSE/Plugins/Horsepower.ini", "Data/SKSE/Plugins/HorsepowerCustom.ini");
+        ini->Load();
+
+        bool swappingHands = ModSettings::SwapHands.GetValue();
+        ApplyFix = swappingHands ? FixAttackAnnotationsAndHands : FixLeftAttackAnnotationsOnly;
+
+        LOG("Left Hand Attack Event Fix Installed, Swapped Attack Inputs: {}", swappingHands);
     }
 }  // namespace Fixes

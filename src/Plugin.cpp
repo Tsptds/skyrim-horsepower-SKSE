@@ -2,6 +2,7 @@
 #include "ButtonEventListener.hpp"
 #include "DeathEventListener.hpp"
 #include "Plugin.h"
+#include "Fixes.hpp"
 
 using namespace SKSE;
 using namespace SKSE::log;
@@ -107,6 +108,7 @@ extern "C" DLLEXPORT bool SKSEPlugin_Load(const LoadInterface *skse) {
         }
     });
 
+    Fixes::ReadINI();
     LOG(">_{} loaded_<|", Plugin::Name);
     return true;
 }

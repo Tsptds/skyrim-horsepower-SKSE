@@ -135,7 +135,7 @@ bool Hooks::NotifyGraphHandler::OnCharacter(RE::IAnimationGraphManagerHolder *a_
 
         // Graph sends bowZoomStart when blockStart fires, back into the game instead of handling on button event
         if (rightHandType != 7 && rightHandType != 12) {
-            Fixes::FixAttackAnnotationsAndHands(a_eventName);
+            Fixes::ApplyFix(a_eventName);
         }
     }
 
@@ -203,7 +203,7 @@ bool Hooks::NotifyGraphHandler::OnPlayer(RE::IAnimationGraphManagerHolder *a_thi
 
         // Graph sends bowZoomStart when blockStart fires, back into the game instead of handling on button event
         if (rightHandType != 7 && rightHandType != 12) {
-            Fixes::FixAttackAnnotationsAndHands(a_eventName);
+            Fixes::ApplyFix(a_eventName);
         }
     }
 
