@@ -3,6 +3,7 @@
 #include "RayCastUtil.hpp"
 #include "ButtonEventListener.hpp"
 #include "Fixes.hpp"
+#include "Util.hpp"
 
 namespace Hooks {
     class AnimationEventHook {
@@ -130,14 +131,10 @@ bool Hooks::NotifyGraphHandler::OnCharacter(RE::IAnimationGraphManagerHolder *a_
     const auto &actor = graph->holder;
 
     if (actor->IsOnMount()) {
-        int rightHandType;
-        actor->GetGraphVariableInt("iRightHandType", rightHandType);
-
-        // Graph sends bowZoomStart when blockStart fires, back into the game instead of handling on button event
-        if (rightHandType != 7 && rightHandType != 12) {
-            Fixes::ApplyFix(a_eventName);
+        if (Util::CheckShouldReplaceEvent(actor)) {
+            Fixes::Attacks::ApplyFix(a_eventName);
         }
-    }
+        }
 
     if (!actor->IsHorse()) return _origCharacter(a_this, a_eventName);
 
@@ -198,12 +195,8 @@ bool Hooks::NotifyGraphHandler::OnPlayer(RE::IAnimationGraphManagerHolder *a_thi
 
     const auto &pl = RE::PlayerCharacter::GetSingleton();
     if (pl->IsOnMount()) {
-        int rightHandType;
-        pl->GetGraphVariableInt("iRightHandType", rightHandType);
-
-        // Graph sends bowZoomStart when blockStart fires, back into the game instead of handling on button event
-        if (rightHandType != 7 && rightHandType != 12) {
-            Fixes::ApplyFix(a_eventName);
+        if (Util::CheckShouldReplaceEvent(pl)) {
+            Fixes::Attacks::ApplyFix(a_eventName);
         }
     }
 

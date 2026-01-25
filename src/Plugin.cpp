@@ -64,7 +64,7 @@ using namespace plugin;
 extern "C" DLLEXPORT bool SKSEPlugin_Load(const LoadInterface *skse) {
     initializeLogging();
 
-    LOG("'{} By {}' / Skyrim '{}'", Plugin::Name, Plugin::Author, REL::Module::get().version().string());
+    LOG("'{} {} By {}' / Skyrim '{}'", Plugin::Name, Plugin::VersionString, Plugin::Author, REL::Module::get().version().string());
     Init(skse, false);
 
     SKSE::GetMessagingInterface()->RegisterListener([](SKSE::MessagingInterface::Message *msg) {
@@ -108,7 +108,9 @@ extern "C" DLLEXPORT bool SKSEPlugin_Load(const LoadInterface *skse) {
         }
     });
 
-    Fixes::ReadINI();
-    LOG(">_{} loaded_<|", Plugin::Name);
+    ModSettings::ReadINI();
+    Fixes::Attacks::SetHandSwapping();
+    
+    LOG("|>_{} loaded_<|", Plugin::Name);
     return true;
 }
