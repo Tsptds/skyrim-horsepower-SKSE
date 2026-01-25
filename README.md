@@ -1,4 +1,4 @@
-# ***Template Project for SKSE - CommonLibSSE-NG***
+# ***HorsePower - CommonLibSSE-NG***
 
 ## ***Runtime requirements***
 
