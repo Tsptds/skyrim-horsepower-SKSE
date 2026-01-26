@@ -25,11 +25,9 @@ namespace Hooks {
         private:
             static inline RE::BSEventNotifyControl Hook(RE::BSAnimationGraphManager *a_this, const RE::BSAnimationGraphEvent *a_event,
                                                         RE::BSTEventSource<RE::BSAnimationGraphEvent> *a_eventSource) {
-                constexpr auto kContinue = RE::BSEventNotifyControl::kContinue;
-
                 const auto &actor = a_this->graphs[a_this->GetRuntimeData().activeGraph]->holder;
 
-                if (!actor || !actor->IsHorse()) return kContinue;
+                if (!actor || !actor->IsHorse()) return _ProcessEvent(a_this, a_event, a_eventSource);
                 const auto &ev = a_event->tag;
 
                 /* Ragdoll enable activation */
@@ -48,7 +46,7 @@ namespace Hooks {
                         bool isSprinting;
                         actor->GetGraphVariableBool("IsSprinting", isSprinting);
 
-                        if (!isSprinting) return kContinue;
+                        if (!isSprinting) return _ProcessEvent(a_this, a_event, a_eventSource);
 
                         const auto fwdDir = Util::Vec4_To_Vec3(actor->GetCharController()->forwardVec * -1);
 
