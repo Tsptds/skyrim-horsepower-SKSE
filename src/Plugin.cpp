@@ -109,7 +109,7 @@ extern "C" DLLEXPORT bool SKSEPlugin_Load(const LoadInterface *skse) {
     });
 
     ModSettings::ReadINI();
-    // Fixes::Attacks::SetHandSwapping();
+    Fixes::Attacks::SetHandSwapping();
     
     LOG("|>_{} loaded_<|", Plugin::Name);
     return true;

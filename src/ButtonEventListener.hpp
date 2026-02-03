@@ -1,4 +1,5 @@
 #pragma once
+#include "ModSettings.h"
 #include "VectorUtil.hpp"
 
 namespace Listeners {
@@ -53,6 +54,22 @@ namespace Listeners {
             const auto &ctrl = horse->GetCharController();
 
             if (!ctrl) continue;
+
+            /* Manual Pet Logic */
+            if (ModSettings::ManualPetting.GetValue()) {
+                bool idle = [&event, &horse] {
+                    const auto &UE = RE::UserEvents::GetSingleton();
+                    if (event->QUserEvent() == UE->sneak) {
+                        bool idle;
+                        horse->GetGraphVariableBool("_Horse_IsStandingIdle", idle);
+                        if (idle) {
+                            return horse->NotifyAnimationGraph("IdlePet");
+                        }
+                    }
+                    return false;
+                }();
+                if (idle) continue;
+            }
 
             bool turning;
             horse->GetGraphVariableBool("_Horse_IsCannedTurn", turning);

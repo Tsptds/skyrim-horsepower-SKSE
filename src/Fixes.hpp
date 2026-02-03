@@ -58,14 +58,14 @@ namespace Fixes {
             }
 
         public:
-            inline static fix_t ApplyFix = FixLeftAttackAnnotationsOnly;
-            // inline static fix_t ApplyFix = nullptr;
+            // inline static fix_t ApplyFix = FixLeftAttackAnnotationsOnly;
+            inline static fix_t ApplyFix = nullptr;
 
-            // inline static void SetHandSwapping() {
-            //     bool swappingHands = ModSettings::SwapHands.GetValue();
-            //     Attacks::ApplyFix = swappingHands ? Attacks::FixAttackAnnotationsAndHands : Attacks::FixLeftAttackAnnotationsOnly;
-            //     LOG("Left Hand Attack Event Fix Installed, Swapped Attack Inputs: {}", swappingHands);
-            // }
+            inline static void SetHandSwapping() {
+                bool swappingHands = ModSettings::SwapHands.GetValue();
+                Attacks::ApplyFix = swappingHands ? Attacks::FixAttackAnnotationsAndHands : Attacks::FixLeftAttackAnnotationsOnly;
+                LOG("Left Hand Attack Event Fix Installed, Swapped Attack Inputs: {}", swappingHands);
+            }
     };
 
 }  // namespace Fixes

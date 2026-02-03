@@ -2,11 +2,11 @@ cmake_minimum_required(VERSION 3.25)
 add_compile_definitions(REX_OPTION_INI)
 project(
         HorsePower
-        VERSION 1.0.0
+        VERSION 1.0.2
         LANGUAGES CXX)
 set(PROJECT_LICENSE "AGPL-3.0")
 set(PROJECT_FRIENDLY_NAME ${PROJECT_NAME})
-set(PROJECT_LONG_NAME "Horsepower Ragdoll Plugin")
+set(PROJECT_LONG_NAME "Horsepower SKSE Plugin")
 set(PROJECT_AUTHOR "Tsptds")
 set(PROJECT_DESCRIPTION ${PROJECT_LONG_NAME})
 set(PROJECT_COPYRIGHT "Copyright")
