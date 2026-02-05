@@ -57,9 +57,7 @@ namespace Hooks {
                         const auto fwdVel = vel * fwdDir;
                         // LOG("speed: {}", fwdVel);
 
-                        RE::ActorPtr rider;
-
-                        if (actor->GetMountedBy(rider) ? fwdVel < 50 : fwdVel < 20) {
+                        if (fwdVel > 0 && fwdVel < 50) {
                             actor->NotifyAnimationGraph("IdleRearUp");
                         }
                     }

@@ -2,7 +2,7 @@ cmake_minimum_required(VERSION 3.25)
 add_compile_definitions(REX_OPTION_INI)
 project(
         HorsePower
-        VERSION 1.0.2
+        VERSION 1.0.3
         LANGUAGES CXX)
 set(PROJECT_LICENSE "AGPL-3.0")
 set(PROJECT_FRIENDLY_NAME ${PROJECT_NAME})
