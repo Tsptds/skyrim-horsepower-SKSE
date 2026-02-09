@@ -75,14 +75,7 @@ namespace Hooks {
                 }
 
                 else if (ev == "jumpBegin") {
-                    const auto &ctrl = actor->GetCharController();
-                    auto &JH = ctrl->jumpHeight;
-                    // LOG("{}", JH);
-                    // Luckily event fires after jump height is set, so I can overwrite it here, it's set for every jump individually
-                    bool isStandingjump;
-                    actor->GetGraphVariableBool("_HORSE_IncreasedJump", isStandingjump);
-
-                    JH = isStandingjump ? 2.5f : 1.2f;  // Default 1.08585
+                    Fixes::Compatibility::ModJump(actor);
                 }
 
                 return _ProcessEvent(a_this, a_event, a_eventSource);

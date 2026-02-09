@@ -110,6 +110,7 @@ extern "C" DLLEXPORT bool SKSEPlugin_Load(const LoadInterface *skse) {
 
     ModSettings::ReadINI();
     Fixes::Attacks::SetHandSwapping();
+    Fixes::Compatibility::SetModJump();
     
     LOG("|>_{} loaded_<|", Plugin::Name);
     return true;
