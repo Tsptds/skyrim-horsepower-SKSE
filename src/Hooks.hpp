@@ -174,7 +174,7 @@ bool Hooks::NotifyGraphHandler::OnPlayer(RE::IAnimationGraphManagerHolder *a_thi
         return res;
     }
 
-    if (a_eventName == "HorseExit") {
+    if (a_eventName == "HorseExit" || a_eventName == "HorseExitSwim") {
         bool res = _origPlayer(a_this, a_eventName);
         if (res) {
             Listeners::ButtonEventListener::GetSingleton()->Unregister();
