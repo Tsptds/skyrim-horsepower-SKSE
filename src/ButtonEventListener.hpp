@@ -40,25 +40,33 @@ namespace Listeners {
 
     RE::BSEventNotifyControl ButtonEventListener::ProcessEvent(RE::InputEvent *const *a_event, RE::BSTEventSource<RE::InputEvent *> *) {
         if (!a_event) return RE::BSEventNotifyControl::kContinue;
+        bool left{false};
+        bool right{false};
 
         /* Canned 180 Turn logic, relative to camera, horse facing direction and input direction */
 
         const auto &pl = RE::PlayerCharacter::GetSingleton();
         if (!pl->IsOnMount()) return RE::BSEventNotifyControl::kContinue;
 
+        RE::ActorPtr mnt;
+        if (!pl->GetMount(mnt)) RE::BSEventNotifyControl::kContinue;
+        const auto &horse = mnt.get();
+        const auto &ctrl = horse->GetCharController();
+        if (!ctrl) RE::BSEventNotifyControl::kContinue;
+
         for (auto event = *a_event; event; event = event->next) {
-            RE::ActorPtr mnt;
-            if (!pl->GetMount(mnt)) continue;
-
-            const auto &horse = mnt.get();
-            const auto &ctrl = horse->GetCharController();
-
-            if (!ctrl) continue;
+            const auto &UE = RE::UserEvents::GetSingleton();
+            if (event->QUserEvent() == UE->leftAttack) {
+                if (event->AsButtonEvent()->IsDown()) left = true;
+            }
+            if (event->QUserEvent() == UE->rightAttack) {
+                if (event->AsButtonEvent()->IsDown()) right = true;
+            }
+            // if (event->AsButtonEvent()->QUserEvent() == UE->right) {}
 
             /* Manual Pet Logic */
             if (ModSettings::ManualPetting.GetValue()) {
-                bool idle = [&event, &horse] {
-                    const auto &UE = RE::UserEvents::GetSingleton();
+                bool idle = [&event, &horse, &UE] {
                     if (event->QUserEvent() == UE->sneak) {
                         bool idle;
                         horse->GetGraphVariableBool("_Horse_IsStandingIdle", idle);
@@ -138,7 +146,11 @@ namespace Listeners {
                 }
             }
         }
-
+        /* Horse hitting is not considered assault for rider */
+        if (left && right) {
+            horse->NotifyAnimationGraph("attackStart_attack2");
+            pl->NotifyAnimationGraph("standingRearup");
+        }
         return RE::BSEventNotifyControl::kContinue;
     }
 
