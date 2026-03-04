@@ -56,13 +56,16 @@ namespace Listeners {
 
         for (auto event = *a_event; event; event = event->next) {
             const auto &UE = RE::UserEvents::GetSingleton();
-            if (event->QUserEvent() == UE->leftAttack) {
-                if (event->AsButtonEvent()->IsDown()) left = true;
+
+            if (pl->AsActorState()->IsWeaponDrawn()) {
+                constexpr auto heldThreshold = 0.1f;
+                if (event->QUserEvent() == UE->leftAttack) {
+                    if (event->AsButtonEvent()->HeldDuration() < heldThreshold) left = true;
+                }
+                if (event->QUserEvent() == UE->rightAttack) {
+                    if (event->AsButtonEvent()->HeldDuration() < heldThreshold) right = true;
+                }
             }
-            if (event->QUserEvent() == UE->rightAttack) {
-                if (event->AsButtonEvent()->IsDown()) right = true;
-            }
-            // if (event->AsButtonEvent()->QUserEvent() == UE->right) {}
 
             /* Manual Pet Logic */
             if (ModSettings::ManualPetting.GetValue()) {
