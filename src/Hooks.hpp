@@ -162,7 +162,7 @@ bool Hooks::NotifyGraphHandler::OnCharacter(RE::IAnimationGraphManagerHolder *a_
 }
 
 bool Hooks::NotifyGraphHandler::OnPlayer(RE::IAnimationGraphManagerHolder *a_this, const RE::BSFixedString &a_eventName) {
-    if (a_eventName == "HorseEnter") {
+    if (a_eventName == "HorseEnter" || a_eventName == "HorseEnterSwim") {
         bool res = _origPlayer(a_this, a_eventName);
         if (res) {
             Listeners::ButtonEventListener::GetSingleton()->Register();
