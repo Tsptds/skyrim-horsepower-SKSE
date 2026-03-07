@@ -59,29 +59,22 @@ namespace Listeners {
 
             if (pl->AsActorState()->IsWeaponDrawn()) {
                 constexpr auto heldThreshold = 0.1f;
-
                 if (event->QUserEvent() == UE->leftAttack) {
-                    const auto &dur = event->AsButtonEvent()->HeldDuration();
-                    if (dur < heldThreshold) left = true;
+                    if (event->AsButtonEvent()->HeldDuration() < heldThreshold) left = true;
                 }
-                else if (event->QUserEvent() == UE->rightAttack) {
-                    const auto &dur = event->AsButtonEvent()->HeldDuration();
-                    if (dur < heldThreshold) right = true;
+                if (event->QUserEvent() == UE->rightAttack) {
+                    if (event->AsButtonEvent()->HeldDuration() < heldThreshold) right = true;
                 }
             }
 
             /* Manual Pet Logic */
             if (ModSettings::ManualPetting.GetValue()) {
-                bool idle = [&event, &horse, &UE, pl] {
+                bool idle = [&event, &horse, &UE] {
                     if (event->QUserEvent() == UE->sneak) {
                         bool idle;
                         horse->GetGraphVariableBool("_Horse_IsStandingIdle", idle);
                         if (idle) {
                             return horse->NotifyAnimationGraph("IdlePet");
-                        }
-                        else {
-                            horse->NotifyAnimationGraph("attackStart_attack1");
-                            pl->NotifyAnimationGraph("standingRearup");
                         }
                     }
                     return false;
