@@ -1,6 +1,7 @@
 #pragma once
 #include "ModSettings.h"
 #include "VectorUtil.hpp"
+#include "HitEventListener.hpp"
 
 namespace Listeners {
 
@@ -28,6 +29,8 @@ namespace Listeners {
         if (inputManager) {
             inputManager->AddEventSink(ButtonEventListener::GetSingleton());
             ButtonEventListener::GetSingleton()->SinkRegistered = true;
+
+            Listeners::HitEventListener::GetSingleton()->Register();
         }
     }
     void ButtonEventListener::Unregister() {
@@ -35,30 +38,43 @@ namespace Listeners {
         if (inputManager) {
             inputManager->RemoveEventSink(ButtonEventListener::GetSingleton());
             ButtonEventListener::GetSingleton()->SinkRegistered = false;
+
+            Listeners::HitEventListener::GetSingleton()->Unregister();
         }
     }
 
     RE::BSEventNotifyControl ButtonEventListener::ProcessEvent(RE::InputEvent *const *a_event, RE::BSTEventSource<RE::InputEvent *> *) {
         if (!a_event) return RE::BSEventNotifyControl::kContinue;
-
-        /* Canned 180 Turn logic, relative to camera, horse facing direction and input direction */
+        bool left{false};
+        bool right{false};
 
         const auto &pl = RE::PlayerCharacter::GetSingleton();
         if (!pl->IsOnMount()) return RE::BSEventNotifyControl::kContinue;
 
+        RE::ActorPtr mnt;
+        if (!pl->GetMount(mnt)) RE::BSEventNotifyControl::kContinue;
+        const auto &horse = mnt.get();
+        const auto &ctrl = horse->GetCharController();
+        if (!ctrl) RE::BSEventNotifyControl::kContinue;
+
         for (auto event = *a_event; event; event = event->next) {
-            RE::ActorPtr mnt;
-            if (!pl->GetMount(mnt)) continue;
+            const auto &UE = RE::UserEvents::GetSingleton();
 
-            const auto &horse = mnt.get();
-            const auto &ctrl = horse->GetCharController();
-
-            if (!ctrl) continue;
+            if (ModSettings::ManualHorseAttacks.GetValue()) {
+                if (pl->AsActorState()->IsWeaponDrawn()) {
+                    constexpr auto heldThreshold = 0.1f;
+                    if (event->QUserEvent() == UE->leftAttack) {
+                        if (event->AsButtonEvent()->HeldDuration() < heldThreshold) left = true;
+                    }
+                    if (event->QUserEvent() == UE->rightAttack) {
+                        if (event->AsButtonEvent()->HeldDuration() < heldThreshold) right = true;
+                    }
+                }
+            }
 
             /* Manual Pet Logic */
             if (ModSettings::ManualPetting.GetValue()) {
-                bool idle = [&event, &horse] {
-                    const auto &UE = RE::UserEvents::GetSingleton();
+                bool idle = [&event, &horse, &UE] {
                     if (event->QUserEvent() == UE->sneak) {
                         bool idle;
                         horse->GetGraphVariableBool("_Horse_IsStandingIdle", idle);
@@ -71,18 +87,13 @@ namespace Listeners {
                 if (idle) continue;
             }
 
+            /* Canned 180 Turn logic, relative to camera, horse facing direction and input direction */
+            if (horse->AsActorState()->IsSprinting()) continue;
+
             bool turning;
             horse->GetGraphVariableBool("_Horse_IsCannedTurn", turning);
 
             const auto &horseFwd = Util::Vec4_To_Vec3(ctrl->forwardVec * -1);  // This shit is inverted for some reason
-
-            const auto &fwdVel = [horse, horseFwd] -> float {
-                RE::NiPoint3 vel;
-                horse->GetLinearVelocity(vel);
-                vel.z = 0;
-
-                return vel * horseFwd;
-            }();
 
             auto horseCam = [horseFwd] -> RE::NiPoint3 {
                 const auto &cam = RE::PlayerCamera::GetSingleton();
@@ -101,7 +112,7 @@ namespace Listeners {
             /* Not Pressing the button & should cancel early */
             if (inputRaw.Length() < 0.05f) {
                 if (turning) {
-                    horse->NotifyAnimationGraph("cannedTurnStop");  // Early exit
+                    horse->NotifyAnimationGraph("_CannedEarlyExit");  // Early exit
                 }
 
                 continue;
@@ -118,19 +129,27 @@ namespace Listeners {
 
             // LOG("{}", dot);
 
+            const auto &fwdVel = [&horse, &horseFwd] -> float {
+                RE::NiPoint3 vel;
+                horse->GetLinearVelocity(vel);
+                vel.z = 0;
+
+                return vel * horseFwd;
+            };
+
             /* Still pressing the button and should cancel early */
-            if (turning && dot > 0.4f) {
-                horse->NotifyAnimationGraph("cannedTurnStop");  // Early exit
+            if (turning && dot > 0.8f) {
+                horse->NotifyAnimationGraph("_CannedEarlyExit");  // Early exit
             }
 
-            else if (fwdVel < 200.f) {
+            else if (fwdVel() < 200.f) {
                 if (dot <= -0.5) {  // ~120°
                     if (crossZ > 0.0f)
                         horse->NotifyAnimationGraph("cannedTurnLeft180");
                     else
                         horse->NotifyAnimationGraph("cannedTurnRight180");
                 }
-                else if (dot <= 0) {  // ~90°
+                else if (dot <= 0.2588f) {  // ~75 = 0.2588 / ~60° = 0.5 / ~90° = 0
                     if (crossZ > 0.0f)
                         horse->NotifyAnimationGraph("cannedTurnLeft90");
                     else
@@ -138,7 +157,17 @@ namespace Listeners {
                 }
             }
         }
+        /* BUG: Horse hitting is not considered assault for rider, also horse can hit player */
+        if (left && right) {
+            bool idle;
+            horse->GetGraphVariableBool("_Horse_IsStandingIdle", idle);
+            if (idle)
+                horse->NotifyAnimationGraph("attackStart_attack1");
+            else
+                horse->NotifyAnimationGraph("attackStart_attack2");
 
+            pl->NotifyAnimationGraph("standingRearup");
+        }
         return RE::BSEventNotifyControl::kContinue;
     }
 

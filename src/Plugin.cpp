@@ -3,6 +3,7 @@
 #include "DeathEventListener.hpp"
 #include "Plugin.h"
 #include "Fixes.hpp"
+#include "ModConfigMenu.hpp"
 
 using namespace SKSE;
 using namespace SKSE::log;
@@ -111,7 +112,8 @@ extern "C" DLLEXPORT bool SKSEPlugin_Load(const LoadInterface *skse) {
     ModSettings::ReadINI();
     Fixes::Attacks::SetHandSwapping();
     Fixes::Compatibility::SetModJump();
-    
+    ModConfigMenu::SetupMenu();
+
     LOG("|>_{} loaded_<|", Plugin::Name);
     return true;
 }

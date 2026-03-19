@@ -16,4 +16,12 @@ namespace Util {
         /* Block unless drawn */
         return actor->AsActorState()->GetWeaponState() == RE::WEAPON_STATE::kDrawn;
     }
+
+    void StartCombat(RE::TESObjectREFR *a_initiator, RE::TESObjectREFR *a_target) {
+        using func_t = void (*)(RE::TaskQueueInterface *, RE::TESObjectREFR *, RE::TESObjectREFR *);
+        REL::Relocation<func_t> func{RELOCATION_ID(35984, 36959)};
+
+        const auto taskPool = RE::TaskQueueInterface::GetSingleton();
+        return func(taskPool, a_initiator, a_target);
+    }
 }  // namespace Util

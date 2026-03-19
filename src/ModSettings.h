@@ -8,9 +8,13 @@ namespace ModSettings {
     inline REX::INI::Bool SwapHands{"Settings", "bSwapAttackInputs", false};
     inline REX::INI::Bool DisableModMovingJumpHeight{"Settings", "bDisableMovingJumpHeightChange", false};
 
+    inline REX::INI::Bool ManualHorseAttacks{"Experimental", "bEnableManualHorseAttacks", false};
+
     void ReadINI() {
         const auto ini = REX::INI::SettingStore::GetSingleton();
         ini->Init("Data/SKSE/Plugins/Horsepower.ini", "Data/SKSE/Plugins/HorsepowerCustom.ini");
         ini->Load();
+
+        if (ManualHorseAttacks.GetValue()) LOG("{}", "Experimental Horse Attack Tweak Enabled");
     }
-}
+}  // namespace ModSettings

@@ -26,8 +26,22 @@ namespace Hooks {
             static inline RE::BSEventNotifyControl Hook(RE::BSAnimationGraphManager *a_this, const RE::BSAnimationGraphEvent *a_event,
                                                         RE::BSTEventSource<RE::BSAnimationGraphEvent> *a_eventSource) {
                 const auto &actor = a_this->graphs[a_this->GetRuntimeData().activeGraph]->holder;
+                if (!actor) return _ProcessEvent(a_this, a_event, a_eventSource);
 
-                if (!actor || !actor->IsHorse()) return _ProcessEvent(a_this, a_event, a_eventSource);
+                if (actor->IsPlayerRef()) {
+                    /* Stuck swimming bool fix, can't draw weapons bug */
+                    if (a_event->tag == "MountEnd") {
+                        actor->AsActorState()->actorState1.swimming = false;
+
+                        /* Horse walking in water fix */
+                        RE::ActorPtr horse;
+                        if (actor->GetMount(horse)) {
+                            if (horse->AsActorState()->actorState1.swimming) horse->NotifyAnimationGraph("MountedSwimStart");
+                        }
+                    }
+                    return _ProcessEvent(a_this, a_event, a_eventSource);
+                }
+                if (!actor->IsHorse()) return _ProcessEvent(a_this, a_event, a_eventSource);
                 const auto &ev = a_event->tag;
 
                 /* Ragdoll enable activation */
@@ -138,7 +152,7 @@ bool Hooks::NotifyGraphHandler::OnCharacter(RE::IAnimationGraphManagerHolder *a_
         if (actor->IsDead() || actor->IsDead(false)) return _origCharacter(a_this, a_eventName);
 
         RE::ActorPtr riderPtr;
-        if (actor->GetMountedBy(riderPtr) && riderPtr) {
+        if (actor->GetMountedBy(riderPtr)) {
 #ifdef _DEBUG
             LOG("Knocked rider {}", riderPtr->GetDisplayFullName());
 #endif
@@ -162,7 +176,7 @@ bool Hooks::NotifyGraphHandler::OnCharacter(RE::IAnimationGraphManagerHolder *a_
 }
 
 bool Hooks::NotifyGraphHandler::OnPlayer(RE::IAnimationGraphManagerHolder *a_this, const RE::BSFixedString &a_eventName) {
-    if (a_eventName == "HorseEnter") {
+    if (a_eventName == "HorseEnter" || a_eventName == "HorseEnterSwim") {
         bool res = _origPlayer(a_this, a_eventName);
         if (res) {
             Listeners::ButtonEventListener::GetSingleton()->Register();
