@@ -29,8 +29,6 @@ namespace Listeners {
         if (inputManager) {
             inputManager->AddEventSink(ButtonEventListener::GetSingleton());
             ButtonEventListener::GetSingleton()->SinkRegistered = true;
-
-            Listeners::HitEventListener::GetSingleton()->Register();
         }
     }
     void ButtonEventListener::Unregister() {
@@ -38,8 +36,6 @@ namespace Listeners {
         if (inputManager) {
             inputManager->RemoveEventSink(ButtonEventListener::GetSingleton());
             ButtonEventListener::GetSingleton()->SinkRegistered = false;
-
-            Listeners::HitEventListener::GetSingleton()->Unregister();
         }
     }
 

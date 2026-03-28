@@ -16,6 +16,8 @@ namespace Listeners {
                 const auto &attacker = a_event->cause;
                 const auto &target = a_event->target;
 
+                if (!attacker->IsActor() || !target->IsActor()) return RE::BSEventNotifyControl::kContinue;
+
                 if (attacker && target && attacker->IsHorse()) {
                     auto horse = attacker->As<RE::Actor>();
 
