@@ -15,10 +15,9 @@ namespace Listeners {
 
                 const auto &attacker = a_event->cause;
                 const auto &target = a_event->target;
+                if (attacker && target) {
+                    if (!attacker->IsActor() || !target->IsActor() || !attacker->IsHorse()) return RE::BSEventNotifyControl::kContinue;
 
-                if (!attacker->IsActor() || !target->IsActor()) return RE::BSEventNotifyControl::kContinue;
-
-                if (attacker && target && attacker->IsHorse()) {
                     auto horse = attacker->As<RE::Actor>();
 
                     if (RE::ActorPtr rider; horse->GetMountedBy(rider)) {
