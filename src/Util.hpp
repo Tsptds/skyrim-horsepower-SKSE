@@ -9,7 +9,7 @@ namespace Util {
         int rightHandType;
         int wantBlock;
         actor->GetGraphVariableInt("iRightHandType", rightHandType);
-        actor->GetGraphVariableInt("iWantBlock", wantBlock);  // Box zoom is controlled with this, yeah...
+        actor->GetGraphVariableInt("iWantBlock", wantBlock);  // Bow zoom is controlled with this, yeah...
 
         if (rightHandType == 7 || rightHandType == 12 || wantBlock) return false;
 
