@@ -243,10 +243,14 @@ bool Hooks::NotifyGraphHandler::OnCharacter(RE::IAnimationGraphManagerHolder *a_
         const auto mat = ctrl->surfaceMaterial;
         using mi = RE::MATERIAL_ID;
 
+        constexpr float maxSubmerge = 0.15f;
+        const auto wld = actor->GetParentCell();
+        const float submerged = wld ? actor->GetSubmergedLevel(actor->GetPositionZ(), wld) : 0;
         switch (mat) {
             case mi::kNone:
             case mi::kGrass:
             case mi::kDirt:
+                if (submerged > maxSubmerge) return false;
                 break;
 
             default:

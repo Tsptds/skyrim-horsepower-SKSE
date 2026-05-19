@@ -80,11 +80,17 @@ namespace Listeners {
                             const auto mat = ctrl->surfaceMaterial;
                             using mi = RE::MATERIAL_ID;
 
+                            constexpr float maxSubmerge = 0.15f;
+                            const auto wld = horse->GetParentCell();
+                            const float submerged = wld ? horse->GetSubmergedLevel(horse->GetPositionZ(), wld) : 0;
+
                             switch (mat) {
                                 case mi::kNone:
                                 case mi::kGrass:
                                 case mi::kDirt:
                                     // Feed & Drink
+                                    if (submerged > maxSubmerge) break;
+
                                     return horse->NotifyAnimationGraph("idleGrazing");
                                     break;
 
