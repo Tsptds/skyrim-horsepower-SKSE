@@ -97,11 +97,12 @@ namespace Hooks {
                 else if (ev == "_KnockRider") {
                     RE::ActorPtr riderPtr;
                     if (actor->GetMountedBy(riderPtr)) {
-                        RE::Actor *rider = riderPtr.get();
-
+                        
                         // Knock rider
                         actor->NotifyAnimationGraph("idleRearUp");
-                        actor->GetActorRuntimeData().currentProcess->KnockExplosion(rider, rider->GetPosition(), 0.f);
+                        // Seems to be annoying for now
+                        // RE::Actor *rider = riderPtr.get();
+                        // actor->GetActorRuntimeData().currentProcess->KnockExplosion(rider, rider->GetPosition(), 0.f);
                     }
                 }
 
