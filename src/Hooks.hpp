@@ -116,16 +116,24 @@ namespace Hooks {
                     }
 
                     if (RE::ActorPtr rider; actor->GetMountedBy(rider) && rider->IsPlayerRef()) {
-                        std::string msg = "";
+                        constexpr std::string trns2 = "$DownStage2";
+                        constexpr std::string trns1 = "$DownStage1";
+                        constexpr std::string trns0 = "$DownStage0";
+
+                        std::string msg{""};
+                        std::string trns_out{""};
                         switch (ctr) {
                             case 2:
-                                msg = fmt::format("{} Could Eat Something", actor->GetName());
+                                SKSE::Translation::Translate(trns2, trns_out);
+                                msg = fmt::format("{} {}", actor->GetName(), trns_out);
                                 break;
                             case 1:
-                                msg = fmt::format("{} is Getting Hungry", actor->GetName());
+                                SKSE::Translation::Translate(trns1, trns_out);
+                                msg = fmt::format("{} {}", actor->GetName(), trns_out);
                                 break;
                             case 0:
-                                msg = fmt::format("{} is Hungry", actor->GetName());
+                                SKSE::Translation::Translate(trns0, trns_out);
+                                msg = fmt::format("{} {}", actor->GetName(), trns_out);
                                 break;
                         }
 
@@ -143,19 +151,29 @@ namespace Hooks {
                     }
 
                     if (RE::ActorPtr rider; actor->GetMountedBy(rider) && rider->IsPlayerRef()) {
-                        std::string msg = "";
+                        constexpr std::string trns5 = "$UpStage5";
+                        constexpr std::string trns4 = "$UpStage4";
+                        constexpr std::string trns3 = "$UpStage3";
+                        constexpr std::string trns1 = "$UpStage1";
+
+                        std::string msg{""};
+                        std::string trns_out{""};
                         switch (ctr) {
                             case 5:
-                                msg = fmt::format("{} is Full", actor->GetName());
+                                SKSE::Translation::Translate(trns5, trns_out);
+                                msg = fmt::format("{} {}", actor->GetName(), trns_out);
                                 break;
                             case 4:
-                                msg = fmt::format("{} Feels Vigorous", actor->GetName());
+                                SKSE::Translation::Translate(trns4, trns_out);
+                                msg = fmt::format("{} {}", actor->GetName(), trns_out);
                                 break;
                             case 3:
-                                msg = fmt::format("{} is Well Fed", actor->GetName());
+                                SKSE::Translation::Translate(trns3, trns_out);
+                                msg = fmt::format("{} {}", actor->GetName(), trns_out);
                                 break;
                             case 1:
-                                msg = fmt::format("{} is No Longer Hungry", actor->GetName());
+                                SKSE::Translation::Translate(trns1, trns_out);
+                                msg = fmt::format("{} {}", actor->GetName(), trns_out);
                                 break;
                         }
 
