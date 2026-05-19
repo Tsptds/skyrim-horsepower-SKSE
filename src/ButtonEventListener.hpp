@@ -129,8 +129,10 @@ namespace Listeners {
                 RE::NiPoint3 vel;
                 horse->GetLinearVelocity(vel);
                 vel.z = 0;
+                vel.x *= horseFwd.x;
+                vel.y *= horseFwd.y;
 
-                return vel * horseFwd;
+                return vel.Length();
             };
 
             /* Still pressing the button and should cancel early */

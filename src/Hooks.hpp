@@ -55,7 +55,7 @@ namespace Hooks {
                 }
 
                 /* Sprinting force stop if stuck to an object */
-                else if (ev == "FootFront") {
+                else if (ev == "FootFront" || ev == "FootBack") {
                     if (ModSettings::SprintInterruption.GetValue()) {
                         bool isSprinting;
                         actor->GetGraphVariableBool("IsSprinting", isSprinting);
@@ -67,8 +67,10 @@ namespace Hooks {
                         RE::NiPoint3 vel;
                         actor->GetLinearVelocity(vel);
                         vel.z = 0;
+                        vel.x *= fwdDir.x;
+                        vel.y *= fwdDir.y;
 
-                        const auto fwdVel = vel * fwdDir;
+                        const auto fwdVel = vel.Length();
                         // LOG("speed: {}", fwdVel);
 
                         if (fwdVel > 0 && fwdVel < 50) {
