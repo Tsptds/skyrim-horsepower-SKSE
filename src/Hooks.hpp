@@ -238,6 +238,21 @@ bool Hooks::NotifyGraphHandler::OnCharacter(RE::IAnimationGraphManagerHolder *a_
 #endif
         }
     }
+    else if (a_eventName == "idleGrazing") {
+        const auto ctrl = actor->GetCharController();
+        const auto mat = ctrl->surfaceMaterial;
+        using mi = RE::MATERIAL_ID;
+
+        switch (mat) {
+            case mi::kNone:
+            case mi::kGrass:
+            case mi::kDirt:
+                break;
+
+            default:
+                return false;
+        }
+    }
 
     // LOG(">> Char Anim Event: {}", a_eventName.c_str());
     return _origCharacter(a_this, a_eventName);

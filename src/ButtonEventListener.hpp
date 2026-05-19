@@ -84,8 +84,8 @@ namespace Listeners {
                                 case mi::kNone:
                                 case mi::kGrass:
                                 case mi::kDirt:
-                                    // Feed
-                                    return horse->NotifyAnimationGraph("_IdleGraze");
+                                    // Feed & Drink
+                                    return horse->NotifyAnimationGraph("idleGrazing");
                                     break;
 
                                 default:
