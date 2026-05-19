@@ -148,6 +148,9 @@ namespace Hooks {
                             case 5:
                                 msg = fmt::format("{} is Full", actor->GetName());
                                 break;
+                            case 4:
+                                msg = fmt::format("{} Feels Vigorous", actor->GetName());
+                                break;
                             case 3:
                                 msg = fmt::format("{} is Well Fed", actor->GetName());
                                 break;
