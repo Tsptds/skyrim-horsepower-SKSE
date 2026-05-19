@@ -94,6 +94,51 @@ namespace Hooks {
                     Fixes::Compatibility::ModJump(actor);
                 }
 
+                else if (ev == "_KnockRider") {
+                    RE::ActorPtr riderPtr;
+                    if (actor->GetMountedBy(riderPtr)) {
+                        RE::Actor *rider = riderPtr.get();
+
+                        // Knock rider
+                        actor->NotifyAnimationGraph("idleRearUp");
+                        actor->GetActorRuntimeData().currentProcess->KnockExplosion(rider, rider->GetPosition(), 0.f);
+                    }
+                }
+
+                else if (ev == "_Horse_DepleteFeedCounter") {
+                    int32_t ctr;
+                    RE::BSFixedString var{"_Horse_FeedCounter"};
+                    actor->GetGraphVariableInt(var, ctr);
+
+                    if (ctr > 0) ctr -= 1;
+                    actor->SetGraphVariableInt(var, ctr);
+                }
+                else if (ev == "_Horse_IncreaseFeedCounter") {
+                    int32_t ctr;
+                    RE::BSFixedString var{"_Horse_FeedCounter"};
+                    actor->GetGraphVariableInt(var, ctr);
+
+                    if (ctr < 5) {
+                        ctr += 1;
+                        actor->SetGraphVariableInt(var, ctr);
+                    }
+
+                    std::string msg = "";
+                    switch (ctr) {
+                        case 5:
+                            msg = fmt::format("{} is Full", actor->GetName());
+                            break;
+                        case 3:
+                            msg = fmt::format("{} is Well Fed", actor->GetName());
+                            break;
+                        case 1:
+                            msg = fmt::format("{} is No Longer Hungry", actor->GetName());
+                            break;
+                    }
+
+                    if (msg != "") RE::SendHUDMessage::ShowHUDMessage(msg.c_str(), nullptr, false);
+                }
+
                 return _ProcessEvent(a_this, a_event, a_eventSource);
             }
 
@@ -182,6 +227,7 @@ bool Hooks::NotifyGraphHandler::OnPlayer(RE::IAnimationGraphManagerHolder *a_thi
         bool res = _origPlayer(a_this, a_eventName);
         if (res) {
             Listeners::ButtonEventListener::GetSingleton()->Register();
+            Listeners::HitEventListener::GetSingleton()->Register();
 #ifdef _DEBUG
             LOG("HORSE ENTER {}", Listeners::ButtonEventListener::GetSingleton()->SinkRegistered);
 #endif
@@ -194,6 +240,7 @@ bool Hooks::NotifyGraphHandler::OnPlayer(RE::IAnimationGraphManagerHolder *a_thi
         bool res = _origPlayer(a_this, a_eventName);
         if (res) {
             Listeners::ButtonEventListener::GetSingleton()->Unregister();
+            Listeners::HitEventListener::GetSingleton()->Unregister();
 #ifdef _DEBUG
             LOG("HORSE EXIT {}", Listeners::ButtonEventListener::GetSingleton()->SinkRegistered);
 #endif

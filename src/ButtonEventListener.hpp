@@ -68,19 +68,36 @@ namespace Listeners {
                 }
             }
 
-            /* Manual Pet Logic */
+            /* Courage system */
             if (ModSettings::ManualPetting.GetValue()) {
-                bool idle = [&event, &horse, &UE] {
+                bool valid = [pl, event, horse, ctrl, UE] {
+                    if (pl->AsActorState()->IsWeaponDrawn()) return false;
+
                     if (event->QUserEvent() == UE->sneak) {
                         bool idle;
                         horse->GetGraphVariableBool("_Horse_IsStandingIdle", idle);
                         if (idle) {
-                            return horse->NotifyAnimationGraph("IdlePet");
+                            const auto mat = ctrl->surfaceMaterial;
+                            using mi = RE::MATERIAL_ID;
+
+                            switch (mat) {
+                                case mi::kNone:
+                                case mi::kGrass:
+                                case mi::kDirt:
+                                    // Feed
+                                    return horse->NotifyAnimationGraph("_IdleGraze");
+                                    break;
+
+                                default:
+                                    // Pet
+                                    return horse->NotifyAnimationGraph("IdlePet");
+                                    break;
+                            }
                         }
                     }
                     return false;
                 }();
-                if (idle) continue;
+                if (valid) continue;
             }
 
             /* Canned 180 Turn logic, relative to camera, horse facing direction and input direction */

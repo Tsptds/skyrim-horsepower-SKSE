@@ -91,18 +91,25 @@ extern "C" DLLEXPORT bool SKSEPlugin_Load(const LoadInterface *skse) {
                     LOG("Player on mount at save load");
 #endif
                     Listeners::ButtonEventListener::GetSingleton()->Register();
+                    Listeners::HitEventListener::GetSingleton()->Register();
                 }
 
                 break;
 
             case SKSE::MessagingInterface::kPreLoadGame:
-                const auto &btnEventListener = Listeners::ButtonEventListener::GetSingleton();
+                const auto btnEventListener = Listeners::ButtonEventListener::GetSingleton();
 
                 if (btnEventListener->SinkRegistered) {
 #ifdef _DEBUG
                     LOG("Unregistered Button listener on game preload");
 #endif
                     btnEventListener->Unregister();
+                }
+
+                const auto hitEventListener = Listeners::HitEventListener::GetSingleton();
+
+                if (hitEventListener->sinkRegistered) {
+                    hitEventListener->Unregister();
                 }
 
                 break;

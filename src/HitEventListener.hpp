@@ -16,14 +16,23 @@ namespace Listeners {
                 const auto &attacker = a_event->cause;
                 const auto &target = a_event->target;
                 if (attacker && target) {
-                    if (!attacker->IsActor() || !target->IsActor() || !attacker->IsHorse()) return RE::BSEventNotifyControl::kContinue;
+                    if (!attacker->IsActor() || !target->IsActor()) return RE::BSEventNotifyControl::kContinue;
 
-                    auto horse = attacker->As<RE::Actor>();
+                    if (attacker->IsHorse()) {
+                        auto horse = attacker->As<RE::Actor>();
 
-                    if (RE::ActorPtr rider; horse->GetMountedBy(rider)) {
-                        // RE::ConsoleLog::GetSingleton()->Print("hit by horse");
-                        // const_cast<RE::TESObjectREFRPtr &>(a_event->cause) = rider;
-                        Util::StartCombat(target.get(), rider.get());
+                        if (RE::ActorPtr rider; horse->GetMountedBy(rider)) {
+                            // RE::ConsoleLog::GetSingleton()->Print("hit by horse");
+                            // const_cast<RE::TESObjectREFRPtr &>(a_event->cause) = rider;
+                            Util::StartCombat(target.get(), rider.get());
+                        }
+                    }
+                    else if (target->IsHorse()) {
+                        auto horse = target->As<RE::Actor>();
+
+                        if (RE::ActorPtr rider; horse->GetMountedBy(rider)) {
+                            horse->NotifyAnimationGraph("_HitCourage");
+                        }
                     }
                 }
 
