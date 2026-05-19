@@ -110,12 +110,27 @@ namespace Hooks {
                     RE::BSFixedString var{"_Horse_FeedCounter"};
                     actor->GetGraphVariableInt(var, ctr);
 
-                    if (ctr > 0)
+                    if (ctr > 0) {
                         ctr -= 1;
-                    else if (RE::ActorPtr rider; actor->GetMountedBy(rider) && rider->IsPlayerRef())
-                        RE::SendHUDMessage::ShowHUDMessage(fmt::format("{} is Full", actor->GetName()).c_str(), nullptr, false);
+                        actor->SetGraphVariableInt(var, ctr);
+                    }
 
-                    actor->SetGraphVariableInt(var, ctr);
+                    if (RE::ActorPtr rider; actor->GetMountedBy(rider) && rider->IsPlayerRef()) {
+                        std::string msg = "";
+                        switch (ctr) {
+                            case 2:
+                                msg = fmt::format("{} Could Eat Something", actor->GetName());
+                                break;
+                            case 1:
+                                msg = fmt::format("{} is Getting Hungry", actor->GetName());
+                                break;
+                            case 0:
+                                msg = fmt::format("{} is Hungry", actor->GetName());
+                                break;
+                        }
+
+                        if (msg != "") RE::SendHUDMessage::ShowHUDMessage(msg.c_str(), nullptr, false);
+                    }
                 }
                 else if (ev == "_Horse_IncreaseFeedCounter") {
                     int32_t ctr;
