@@ -110,7 +110,11 @@ namespace Hooks {
                     RE::BSFixedString var{"_Horse_FeedCounter"};
                     actor->GetGraphVariableInt(var, ctr);
 
-                    if (ctr > 0) ctr -= 1;
+                    if (ctr > 0)
+                        ctr -= 1;
+                    else if (RE::ActorPtr rider; actor->GetMountedBy(rider) && rider->IsPlayerRef())
+                        RE::SendHUDMessage::ShowHUDMessage(fmt::format("{} is Full", actor->GetName()).c_str(), nullptr, false);
+
                     actor->SetGraphVariableInt(var, ctr);
                 }
                 else if (ev == "_Horse_IncreaseFeedCounter") {
@@ -123,20 +127,22 @@ namespace Hooks {
                         actor->SetGraphVariableInt(var, ctr);
                     }
 
-                    std::string msg = "";
-                    switch (ctr) {
-                        case 5:
-                            msg = fmt::format("{} is Full", actor->GetName());
-                            break;
-                        case 3:
-                            msg = fmt::format("{} is Well Fed", actor->GetName());
-                            break;
-                        case 1:
-                            msg = fmt::format("{} is No Longer Hungry", actor->GetName());
-                            break;
-                    }
+                    if (RE::ActorPtr rider; actor->GetMountedBy(rider) && rider->IsPlayerRef()) {
+                        std::string msg = "";
+                        switch (ctr) {
+                            case 5:
+                                msg = fmt::format("{} is Full", actor->GetName());
+                                break;
+                            case 3:
+                                msg = fmt::format("{} is Well Fed", actor->GetName());
+                                break;
+                            case 1:
+                                msg = fmt::format("{} is No Longer Hungry", actor->GetName());
+                                break;
+                        }
 
-                    if (msg != "") RE::SendHUDMessage::ShowHUDMessage(msg.c_str(), nullptr, false);
+                        if (msg != "") RE::SendHUDMessage::ShowHUDMessage(msg.c_str(), nullptr, false);
+                    }
                 }
 
                 return _ProcessEvent(a_this, a_event, a_eventSource);
