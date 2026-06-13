@@ -187,11 +187,11 @@ namespace Listeners {
         }
         /* BUG: Horse hitting is not considered assault for rider, also horse can hit player */
         if (left && right) {
-            bool idle;
-            horse->GetGraphVariableBool("_Horse_IsStandingIdle", idle);
-            if (idle)
-                horse->NotifyAnimationGraph("attackStart_attack1");
-            else
+            // bool idle;
+            // horse->GetGraphVariableBool("_Horse_IsStandingIdle", idle);
+            // if (idle)
+            //     horse->NotifyAnimationGraph("attackStart_attack1");
+            // else
                 horse->NotifyAnimationGraph("attackStart_attack2");
 
             pl->NotifyAnimationGraph("standingRearup");
