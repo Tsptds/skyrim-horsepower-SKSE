@@ -31,7 +31,10 @@ namespace Listeners {
                         auto horse = target->As<RE::Actor>();
 
                         if (RE::ActorPtr rider; horse->GetMountedBy(rider)) {
-                            horse->NotifyAnimationGraph("_HitCourage");
+                            bool canHit;
+                            if (horse->GetGraphVariableBool("_Horse_CanHitCourage", canHit) && canHit) {
+                                horse->NotifyAnimationGraph("_HitCourage");
+                            }
                         }
                     }
                 }

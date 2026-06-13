@@ -94,6 +94,17 @@ namespace Hooks {
                     Fixes::Compatibility::ModJump(actor);
                 }
 
+                else if (ev == "_KnockRider") {
+                    RE::ActorPtr riderPtr;
+                    if (actor->GetMountedBy(riderPtr)) {
+                        // Knock rider
+                        actor->NotifyAnimationGraph("idleRearUp");
+                        // Seems to be annoying for now
+                        // RE::Actor *rider = riderPtr.get();
+                        // actor->GetActorRuntimeData().currentProcess->KnockExplosion(rider, rider->GetPosition(), 0.f);
+                    }
+                }
+
                 else if (ev == FEED_COUNTER_DEC) {
                     int32_t ctr;
                     RE::BSFixedString var{FEED_COUNTER};
