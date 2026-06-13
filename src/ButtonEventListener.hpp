@@ -68,7 +68,7 @@ namespace Listeners {
                 }
             }
 
-            /* Courage system */
+            /* Feed system */
             if (ModSettings::ManualPetting.GetValue()) {
                 bool valid = [pl, event, horse, ctrl, UE] {
                     if (pl->AsActorState()->IsWeaponDrawn()) return false;
