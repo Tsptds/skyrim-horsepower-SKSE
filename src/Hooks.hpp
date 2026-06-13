@@ -94,9 +94,9 @@ namespace Hooks {
                     Fixes::Compatibility::ModJump(actor);
                 }
 
-                else if (ev == "_Horse_DepleteFeedCounter") {
+                else if (ev == FEED_COUNTER_DEC) {
                     int32_t ctr;
-                    RE::BSFixedString var{"_Horse_FeedCounter"};
+                    RE::BSFixedString var{FEED_COUNTER};
                     actor->GetGraphVariableInt(var, ctr);
 
                     if (ctr > 0) {
@@ -129,9 +129,9 @@ namespace Hooks {
                         if (msg != "") RE::SendHUDMessage::ShowHUDMessage(msg.c_str(), nullptr, false);
                     }
                 }
-                else if (ev == "_Horse_IncreaseFeedCounter") {
+                else if (ev == FEED_COUNTER_INC) {
                     int32_t ctr;
-                    RE::BSFixedString var{"_Horse_FeedCounter"};
+                    RE::BSFixedString var{FEED_COUNTER};
                     actor->GetGraphVariableInt(var, ctr);
 
                     if (ctr < 5) {
@@ -281,6 +281,7 @@ bool Hooks::NotifyGraphHandler::OnPlayer(RE::IAnimationGraphManagerHolder *a_thi
 #ifdef _DEBUG
             LOG("HORSE ENTER {}", Listeners::ButtonEventListener::GetSingleton()->SinkRegistered);
 #endif
+            Util::ShowFeedTutorial();
         }
 
         return res;

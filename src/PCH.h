@@ -166,3 +166,7 @@ namespace logger = SKSE::log;
 #define WARN(x, ...) logger::warn(x, __VA_ARGS__)
 #define ERROR(x, ...) logger::error(x, __VA_ARGS__)
 #define CRITICAL(x, ...) logger::error(x, __VA_ARGS__)
+
+#define FEED_COUNTER "_Horse_FeedCounter"
+#define FEED_COUNTER_INC "_Horse_IncreaseFeedCounter"
+#define FEED_COUNTER_DEC "_Horse_DepleteFeedCounter"

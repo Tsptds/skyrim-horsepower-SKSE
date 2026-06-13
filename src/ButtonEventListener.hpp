@@ -77,6 +77,13 @@ namespace Listeners {
                         bool idle;
                         horse->GetGraphVariableBool("_Horse_IsStandingIdle", idle);
                         if (idle) {
+                            int32_t hunger;
+                            horse->GetGraphVariableInt(FEED_COUNTER, hunger);
+
+                            if (hunger > 4) {
+                                return horse->NotifyAnimationGraph("IdlePet");
+                            }
+
                             const auto mat = ctrl->surfaceMaterial;
                             using mi = RE::MATERIAL_ID;
 

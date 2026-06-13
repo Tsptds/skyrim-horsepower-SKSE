@@ -7,7 +7,7 @@ namespace ModConfigMenu {
 
     namespace ms = ModSettings;
 
-    void __stdcall Settings() {
+    void Settings() {
         auto AddSetting = [&](const char *label, const char *desc, bool &value, std::function<void()> onUpdate = nullptr) {
             ImGuiMCP::BeginGroup();
             if (ImGuiMCPComponents::ToggleButton(label, &value)) {
@@ -45,7 +45,7 @@ namespace ModConfigMenu {
         AddSetting("Manual Horseback Petting", "Pet the horse with sneak key on horseback", petting,
                    [&] { ms::ManualPetting.SetValue(petting); });
     }
-    void __stdcall Experimental() {
+    void Experimental() {
         auto AddSetting = [&](const char *label, const char *desc, bool &value, std::function<void()> onUpdate = nullptr) {
             ImGuiMCP::BeginGroup();
             if (ImGuiMCPComponents::ToggleButton(label, &value)) {
@@ -66,6 +66,13 @@ namespace ModConfigMenu {
         AddSetting("Horse Attack", "Make horse attack by pressing both attack buttons", horseAttacks,
                    [&] { ms::ManualHorseAttacks.SetValue(horseAttacks); });
     }
+    void Debug() {
+        if (ImGuiMCP::Button("Test Feed Message")) {
+            std::string msg{"$Horsepower_FeedTutorial"};
+            SKSE::Translation::Translate(msg, msg);
+            RE::DebugMessageBox(msg.c_str());
+        }
+    }
 
     void SetupMenu() {
         if (!SKSEMenuFramework::IsInstalled()) return;
@@ -73,5 +80,6 @@ namespace ModConfigMenu {
         SKSEMenuFramework::SetSection("HorsePower");
         SKSEMenuFramework::AddSectionItem("Settings", Settings);
         SKSEMenuFramework::AddSectionItem("Experimental", Experimental);
+        SKSEMenuFramework::AddSectionItem("Debug", Debug);
     }
 }  // namespace ModConfigMenu

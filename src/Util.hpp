@@ -24,4 +24,17 @@ namespace Util {
         const auto taskPool = RE::TaskQueueInterface::GetSingleton();
         return func(taskPool, a_initiator, a_target);
     }
+
+    void ShowFeedTutorial() {
+        auto dh = RE::TESDataHandler::GetSingleton();
+        if (dh) {
+            auto frm = dh->LookupForm(0x25, "Horsepower.esp");
+            if (frm) {
+                auto msg = frm->As<RE::BGSMessage>();
+                if (msg) {
+                    RE::TutorialMenu::OpenMenu(msg);
+                }
+            }
+        }
+    }
 }  // namespace Util
