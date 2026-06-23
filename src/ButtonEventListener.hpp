@@ -84,27 +84,24 @@ namespace Listeners {
                                 return horse->NotifyAnimationGraph("IdlePet");
                             }
 
-                            const auto mat = ctrl->surfaceMaterial;
-                            using mi = RE::MATERIAL_ID;
+                            auto pos = horse->GetPosition();
+                            // RE::TESLandTexture *landTex = RE::TES::GetSingleton()->GetLandTexture(pos);
+                            RE::MATERIAL_ID mat = RE::TES::GetSingleton()->GetLandMaterialType(pos);
+                            // LOG("{}", mat);
 
-                            constexpr float maxSubmerge = 0.15f;
-                            const auto wld = horse->GetParentCell();
-                            const float submerged = wld ? horse->GetSubmergedLevel(horse->GetPositionZ(), wld) : 0;
+                            // constexpr float maxSubmerge = 0.15f;
+                            // const auto wld = horse->GetParentCell();
+                            // const float submerged = wld ? horse->GetSubmergedLevel(horse->GetPositionZ(), wld) : 0;
+                            // if (landTex && !landTex->textureGrassList.empty()) {
+                            if (mat == RE::MATERIAL_ID::kGrass) {
+                                // Feed
+                                // if (submerged > maxSubmerge) return false;
+                                return horse->NotifyAnimationGraph("idleGrazing");
+                            }
 
-                            switch (mat) {
-                                case mi::kNone:
-                                case mi::kGrass:
-                                case mi::kDirt:
-                                    // Feed & Drink
-                                    if (submerged > maxSubmerge) break;
-
-                                    return horse->NotifyAnimationGraph("idleGrazing");
-                                    break;
-
-                                default:
-                                    // Pet
-                                    return horse->NotifyAnimationGraph("IdlePet");
-                                    break;
+                            else {
+                                // Pet
+                                return horse->NotifyAnimationGraph("IdlePet");
                             }
                         }
                     }
@@ -192,7 +189,7 @@ namespace Listeners {
             // if (idle)
             //     horse->NotifyAnimationGraph("attackStart_attack1");
             // else
-                horse->NotifyAnimationGraph("attackStart_attack2");
+            horse->NotifyAnimationGraph("attackStart_attack2");
 
             pl->NotifyAnimationGraph("standingRearup");
         }
