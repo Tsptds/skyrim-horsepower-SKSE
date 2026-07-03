@@ -53,15 +53,20 @@ namespace ModConfigMenu {
                    [&] { ms::ManualPetting.SetValue(petting); });
 
         bool grazing = ms::GrazeSystem.GetValue();
-        AddSetting("Graze System", "Enable the hunger / grazing system", grazing, [&] { ms::GrazeSystem.SetValue(grazing); });
+        AddSetting("Graze System",
+                   "Enable the hunger / grazing system. Feed your horse when on grassy surfaces with sneak key. Horses will graze on their "
+                   "own as well.",
+                   grazing, [&] { ms::GrazeSystem.SetValue(grazing); });
 
         bool sprintKnock = ms::SprintJumpKnock.GetValue();
-        AddSetting("Sprint Jump Knock", "Knock actors with a sprinting jump, requires graze level 1 or above", sprintKnock,
+        AddSetting("Sprint Jump Knock", "Knock actors with a sprinting jump, requires graze level 1 or above if grazing is enabled.", sprintKnock,
                    [&] { ms::SprintJumpKnock.SetValue(sprintKnock); });
 
         bool hitToleration = ms::HorseHitToleration.GetValue();
-        AddSetting("Hit Toleration", "Horses do a rearup after taking hits between 5-20 randomly", hitToleration,
-                   [&] { ms::HorseHitToleration.SetValue(hitToleration); });
+        AddSetting("Hit Toleration",
+                   "Horses do a rearup after taking hits between 5-20 randomly, including spells. There's a cooldown window to prevent "
+                   "stunlock. The horse has to be hit, not the rider.",
+                   hitToleration, [&] { ms::HorseHitToleration.SetValue(hitToleration); });
     }
     void Experimental() {
         auto AddSetting = [&](const char *label, const char *desc, bool &value, std::function<void()> onUpdate = nullptr) {

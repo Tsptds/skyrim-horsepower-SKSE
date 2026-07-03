@@ -106,78 +106,82 @@ namespace Hooks {
                 }
 
                 else if (ev == FEED_COUNTER_DEC) {
-                    int32_t ctr;
-                    RE::BSFixedString var{FEED_COUNTER};
-                    actor->GetGraphVariableInt(var, ctr);
+                    if (ModSettings::GrazeSystem.GetValue()) {
+                        int32_t ctr;
+                        RE::BSFixedString var{FEED_COUNTER};
+                        actor->GetGraphVariableInt(var, ctr);
 
-                    if (ctr > 0) {
-                        ctr -= 1;
-                        actor->SetGraphVariableInt(var, ctr);
-                    }
-
-                    if (RE::ActorPtr rider; actor->GetMountedBy(rider) && rider->IsPlayerRef()) {
-                        constexpr std::string trns2 = "$DownStage2";
-                        constexpr std::string trns1 = "$DownStage1";
-                        constexpr std::string trns0 = "$DownStage0";
-
-                        std::string msg{""};
-                        std::string trns_out{""};
-                        switch (ctr) {
-                            case 2:
-                                SKSE::Translation::Translate(trns2, trns_out);
-                                msg = fmt::format("{} {}", actor->GetName(), trns_out);
-                                break;
-                            case 1:
-                                SKSE::Translation::Translate(trns1, trns_out);
-                                msg = fmt::format("{} {}", actor->GetName(), trns_out);
-                                break;
-                            case 0:
-                                SKSE::Translation::Translate(trns0, trns_out);
-                                msg = fmt::format("{} {}", actor->GetName(), trns_out);
-                                break;
+                        if (ctr > 0) {
+                            ctr -= 1;
+                            actor->SetGraphVariableInt(var, ctr);
                         }
 
-                        if (msg != "") RE::SendHUDMessage::ShowHUDMessage(msg.c_str(), nullptr, false);
+                        if (RE::ActorPtr rider; actor->GetMountedBy(rider) && rider->IsPlayerRef()) {
+                            constexpr std::string trns2 = "$DownStage2";
+                            constexpr std::string trns1 = "$DownStage1";
+                            constexpr std::string trns0 = "$DownStage0";
+
+                            std::string msg{""};
+                            std::string trns_out{""};
+                            switch (ctr) {
+                                case 2:
+                                    SKSE::Translation::Translate(trns2, trns_out);
+                                    msg = fmt::format("{} {}", actor->GetName(), trns_out);
+                                    break;
+                                case 1:
+                                    SKSE::Translation::Translate(trns1, trns_out);
+                                    msg = fmt::format("{} {}", actor->GetName(), trns_out);
+                                    break;
+                                case 0:
+                                    SKSE::Translation::Translate(trns0, trns_out);
+                                    msg = fmt::format("{} {}", actor->GetName(), trns_out);
+                                    break;
+                            }
+
+                            if (msg != "") RE::SendHUDMessage::ShowHUDMessage(msg.c_str(), nullptr, false);
+                        }
                     }
                 }
                 else if (ev == FEED_COUNTER_INC) {
-                    int32_t ctr;
-                    RE::BSFixedString var{FEED_COUNTER};
-                    actor->GetGraphVariableInt(var, ctr);
+                    if (ModSettings::GrazeSystem.GetValue()) {
+                        int32_t ctr;
+                        RE::BSFixedString var{FEED_COUNTER};
+                        actor->GetGraphVariableInt(var, ctr);
 
-                    if (ctr < 5) {
-                        ctr += 1;
-                        actor->SetGraphVariableInt(var, ctr);
-                    }
-
-                    if (RE::ActorPtr rider; actor->GetMountedBy(rider) && rider->IsPlayerRef()) {
-                        constexpr std::string trns5 = "$UpStage5";
-                        constexpr std::string trns4 = "$UpStage4";
-                        constexpr std::string trns3 = "$UpStage3";
-                        constexpr std::string trns1 = "$UpStage1";
-
-                        std::string msg{""};
-                        std::string trns_out{""};
-                        switch (ctr) {
-                            case 5:
-                                SKSE::Translation::Translate(trns5, trns_out);
-                                msg = fmt::format("{} {}", actor->GetName(), trns_out);
-                                break;
-                            case 4:
-                                SKSE::Translation::Translate(trns4, trns_out);
-                                msg = fmt::format("{} {}", actor->GetName(), trns_out);
-                                break;
-                            case 3:
-                                SKSE::Translation::Translate(trns3, trns_out);
-                                msg = fmt::format("{} {}", actor->GetName(), trns_out);
-                                break;
-                            case 1:
-                                SKSE::Translation::Translate(trns1, trns_out);
-                                msg = fmt::format("{} {}", actor->GetName(), trns_out);
-                                break;
+                        if (ctr < 5) {
+                            ctr += 1;
+                            actor->SetGraphVariableInt(var, ctr);
                         }
 
-                        if (msg != "") RE::SendHUDMessage::ShowHUDMessage(msg.c_str(), nullptr, false);
+                        if (RE::ActorPtr rider; actor->GetMountedBy(rider) && rider->IsPlayerRef()) {
+                            constexpr std::string trns5 = "$UpStage5";
+                            constexpr std::string trns4 = "$UpStage4";
+                            constexpr std::string trns3 = "$UpStage3";
+                            constexpr std::string trns1 = "$UpStage1";
+
+                            std::string msg{""};
+                            std::string trns_out{""};
+                            switch (ctr) {
+                                case 5:
+                                    SKSE::Translation::Translate(trns5, trns_out);
+                                    msg = fmt::format("{} {}", actor->GetName(), trns_out);
+                                    break;
+                                case 4:
+                                    SKSE::Translation::Translate(trns4, trns_out);
+                                    msg = fmt::format("{} {}", actor->GetName(), trns_out);
+                                    break;
+                                case 3:
+                                    SKSE::Translation::Translate(trns3, trns_out);
+                                    msg = fmt::format("{} {}", actor->GetName(), trns_out);
+                                    break;
+                                case 1:
+                                    SKSE::Translation::Translate(trns1, trns_out);
+                                    msg = fmt::format("{} {}", actor->GetName(), trns_out);
+                                    break;
+                            }
+
+                            if (msg != "") RE::SendHUDMessage::ShowHUDMessage(msg.c_str(), nullptr, false);
+                        }
                     }
                 }
 
