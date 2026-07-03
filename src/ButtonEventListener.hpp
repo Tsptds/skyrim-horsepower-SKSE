@@ -68,6 +68,29 @@ namespace Listeners {
                 }
             }
 
+            /* Sprint Knock System */
+            if (auto as = horse->AsActorState(); as->IsSprinting() && horse->IsInJumpState()) {
+                int fed{0};
+                horse->GetGraphVariableInt(FEED_COUNTER, fed);
+
+                if (fed > 0) {
+                    [horse] {
+                        const auto bumped = horse->GetCharController()->bumpedCharCollisionObject;
+                        if (!bumped) return false;
+
+                        const auto ref = RE::TESHavokUtilities::FindCollidableRef(bumped.get()->collidable);
+                        if (!ref) return false;
+
+                        if (!ref->IsActor()) return false;
+                        const auto act = ref->As<RE::Actor>();
+                        horse->GetActorRuntimeData().currentProcess->KnockExplosion(act, horse->GetPosition(), 1.f);
+                        RE::PlaySound("PHYBodyMediumDirtH");
+
+                        return true;
+                    }();
+                }
+            }
+
             /* Feed system */
             if (ModSettings::ManualPetting.GetValue()) {
                 bool valid = [pl, event, horse, ctrl, UE] {
