@@ -69,42 +69,51 @@ namespace Listeners {
             }
 
             /* Sprint Knock System */
-            if (auto as = horse->AsActorState(); as->IsSprinting() && horse->IsInJumpState()) {
-                int fed{0};
-                horse->GetGraphVariableInt(FEED_COUNTER, fed);
+            if (ModSettings::SprintJumpKnock.GetValue()) {
+                if (auto as = horse->AsActorState(); as->IsSprinting() && horse->IsInJumpState()) {
+                    int fed{0};
+                    horse->GetGraphVariableInt(FEED_COUNTER, fed);
 
-                if (fed > 0) {
-                    [horse] {
-                        const auto bumped = horse->GetCharController()->bumpedCharCollisionObject;
-                        if (!bumped) return false;
+                    if (fed > 0) {
+                        [horse] {
+                            const auto bumped = horse->GetCharController()->bumpedCharCollisionObject;
+                            if (!bumped) return false;
 
-                        const auto ref = RE::TESHavokUtilities::FindCollidableRef(bumped.get()->collidable);
-                        if (!ref) return false;
+                            const auto ref = RE::TESHavokUtilities::FindCollidableRef(bumped.get()->collidable);
+                            if (!ref) return false;
 
-                        if (!ref->IsActor()) return false;
-                        const auto act = ref->As<RE::Actor>();
-                        horse->GetActorRuntimeData().currentProcess->KnockExplosion(act, horse->GetPosition(), 1.f);
-                        RE::PlaySound("PHYBodyMediumDirtH");
+                            if (!ref->IsActor()) return false;
+                            const auto act = ref->As<RE::Actor>();
+                            horse->GetActorRuntimeData().currentProcess->KnockExplosion(act, horse->GetPosition(), 1.f);
+                            RE::PlaySound("PHYBodyMediumDirtH");
 
-                        return true;
-                    }();
+                            return true;
+                        }();
+                    }
                 }
             }
 
             /* Feed system */
-            if (ModSettings::ManualPetting.GetValue()) {
-                bool valid = [pl, event, horse, ctrl, UE] {
-                    if (pl->AsActorState()->IsWeaponDrawn()) return false;
+            if (event->QUserEvent() == UE->sneak) {
+                if (!ModSettings::GrazeSystem.GetValue()) {
+                    if (ModSettings::ManualPetting.GetValue()) {
+                        horse->NotifyAnimationGraph("IdlePet");
+                    }
+                }
+                else {
+                    bool valid = [pl, event, horse, ctrl, UE] {
+                        if (pl->AsActorState()->IsWeaponDrawn()) return false;
 
-                    if (event->QUserEvent() == UE->sneak) {
                         bool idle;
                         horse->GetGraphVariableBool("_Horse_IsStandingIdle", idle);
                         if (idle) {
-                            int32_t hunger;
-                            horse->GetGraphVariableInt(FEED_COUNTER, hunger);
+                            if (ModSettings::ManualPetting.GetValue()) {
+                                int32_t hunger;
+                                horse->GetGraphVariableInt(FEED_COUNTER, hunger);
 
-                            if (hunger > 4) {
-                                return horse->NotifyAnimationGraph("IdlePet");
+                                if (hunger > 4) {
+                                    return horse->NotifyAnimationGraph("IdlePet");
+                                }
                             }
 
                             auto pos = horse->GetPosition();
@@ -122,15 +131,15 @@ namespace Listeners {
                                 return horse->NotifyAnimationGraph("idleGrazing");
                             }
 
-                            else {
+                            else if (ModSettings::ManualPetting.GetValue()) {
                                 // Pet
                                 return horse->NotifyAnimationGraph("IdlePet");
                             }
                         }
-                    }
-                    return false;
-                }();
-                if (valid) continue;
+                        return false;
+                    }();
+                    if (valid) continue;
+                }
             }
 
             /* Canned 180 Turn logic, relative to camera, horse facing direction and input direction */

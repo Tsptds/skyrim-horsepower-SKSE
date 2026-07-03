@@ -28,6 +28,7 @@ namespace Listeners {
                         }
                     }
                     else if (target->IsHorse()) {
+                        if (!ModSettings::HorseHitToleration.GetValue()) return RE::BSEventNotifyControl::kContinue;
                         auto horse = target->As<RE::Actor>();
 
                         if (RE::ActorPtr rider; horse->GetMountedBy(rider)) {

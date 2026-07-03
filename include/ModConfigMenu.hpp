@@ -30,10 +30,17 @@ namespace ModConfigMenu {
                    [&] { ms::SprintInterruption.SetValue(sprint); });
 
         bool jump = ms::DisableModMovingJumpHeight.GetValue();
-        AddSetting("Disable Minimum Moving Jump Height Clamp", "Disable the increased minimum jump height when moving", jump, [&] {
-            ms::DisableModMovingJumpHeight.SetValue(jump);
-            Fixes::Compatibility::SetModJump();
-        });
+        AddSetting("Allow Lower Jump Heights While Moving",
+                   "By default, your minimum jump height is increased. For compatibility with other mods that lower the default jump "
+                   "height, keep it off unless you see other issues.",
+                   jump, [&] {
+                       ms::DisableModMovingJumpHeight.SetValue(jump);
+                       Fixes::Compatibility::SetModJump();
+                   });
+
+        bool horseAttacks = ms::ManualHorseAttacks.GetValue();
+        AddSetting("Horse Attack", "Make your horse attack by pressing both attack buttons at once", horseAttacks,
+                   [&] { ms::ManualHorseAttacks.SetValue(horseAttacks); });
 
         bool swap = ms::SwapHands.GetValue();
         AddSetting("Swap Horseback Attack Inputs", "Left click to attack left, right click to attack right", swap, [&] {
@@ -44,6 +51,17 @@ namespace ModConfigMenu {
         bool petting = ms::ManualPetting.GetValue();
         AddSetting("Manual Horseback Petting", "Pet the horse with sneak key on horseback", petting,
                    [&] { ms::ManualPetting.SetValue(petting); });
+
+        bool grazing = ms::GrazeSystem.GetValue();
+        AddSetting("Graze System", "Enable the hunger / grazing system", grazing, [&] { ms::GrazeSystem.SetValue(grazing); });
+
+        bool sprintKnock = ms::SprintJumpKnock.GetValue();
+        AddSetting("Sprint Jump Knock", "Knock actors with a sprinting jump, requires graze level 1 or above", sprintKnock,
+                   [&] { ms::SprintJumpKnock.SetValue(sprintKnock); });
+
+        bool hitToleration = ms::HorseHitToleration.GetValue();
+        AddSetting("Hit Toleration", "Horses do a rearup after taking hits between 5-20 randomly", hitToleration,
+                   [&] { ms::HorseHitToleration.SetValue(hitToleration); });
     }
     void Experimental() {
         auto AddSetting = [&](const char *label, const char *desc, bool &value, std::function<void()> onUpdate = nullptr) {
@@ -62,9 +80,6 @@ namespace ModConfigMenu {
             ImGuiMCP::PopStyleColor();
             ImGuiMCP::Spacing();
         };
-        bool horseAttacks = ms::ManualHorseAttacks.GetValue();
-        AddSetting("Horse Attack", "Make horse attack by pressing both attack buttons", horseAttacks,
-                   [&] { ms::ManualHorseAttacks.SetValue(horseAttacks); });
     }
     void Debug() {
         if (ImGuiMCP::Button("Test Feed Message")) {
@@ -79,7 +94,7 @@ namespace ModConfigMenu {
 
         SKSEMenuFramework::SetSection("HorsePower");
         SKSEMenuFramework::AddSectionItem("Settings", Settings);
-        SKSEMenuFramework::AddSectionItem("Experimental", Experimental);
+        // SKSEMenuFramework::AddSectionItem("Experimental", Experimental);
         SKSEMenuFramework::AddSectionItem("Debug", Debug);
     }
 }  // namespace ModConfigMenu
