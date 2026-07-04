@@ -79,6 +79,7 @@ extern "C" DLLEXPORT bool SKSEPlugin_Load(const LoadInterface *skse) {
                 break;
 
             case SKSE::MessagingInterface::kDataLoaded:
+                ModConfigMenu::SetupMenu();
                 Listeners::DeathEventListener::GetSingleton()->Register();
 #ifdef _DEBUG
                 LOG("Death Event Listener Registered");
@@ -119,7 +120,6 @@ extern "C" DLLEXPORT bool SKSEPlugin_Load(const LoadInterface *skse) {
     ModSettings::ReadINI();
     Fixes::Attacks::SetHandSwapping();
     Fixes::Compatibility::SetModJump();
-    ModConfigMenu::SetupMenu();
 
     LOG("|>_{} loaded_<|", Plugin::Name);
     return true;

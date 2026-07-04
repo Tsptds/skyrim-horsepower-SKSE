@@ -6,9 +6,11 @@
 
 namespace ModConfigMenu {
 
-#define CV(x) x.CachedValue.c_str()  // cached value
     namespace ms = ModSettings;
     using cached = this_plugin::CachedStrings;
+    auto CS = cached::GetSingleton();
+
+/**/ #define CV(x) CS->x.CachedValue.c_str()  // cached value
 
     void Settings() {
         auto AddSetting = [&](const char *label, const char *desc, bool &value, std::function<void()> onUpdate = nullptr) {

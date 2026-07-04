@@ -38,60 +38,68 @@ namespace this_plugin {
 
     class CachedStrings {
         public:
-            inline static TranslationKey<s_UpStage1> upStage1;
-            inline static TranslationKey<s_UpStage3> upStage3;
-            inline static TranslationKey<s_UpStage4> upStage4;
-            inline static TranslationKey<s_UpStage5> upStage5;
-            inline static TranslationKey<s_DownStage2> downStage2;
-            inline static TranslationKey<s_DownStage1> downStage1;
-            inline static TranslationKey<s_DownStage0> downStage0;
-            inline static TranslationKey<s_HorsepowerFeedTutorial> horsepowerFeedTutorial;
-            inline static TranslationKey<s_HorsepowerFeedTutorialHeader> horsepowerFeedTutorialHeader;
-            inline static TranslationKey<s_MCMSprintInterruptLabel> mcmSprintInterruptLabel;
-            inline static TranslationKey<s_MCMSprintInterruptDesc> mcmSprintInterruptDesc;
-            inline static TranslationKey<s_MCMMinJumpClampLabel> mcmMinJumpClampLabel;
-            inline static TranslationKey<s_MCMMinJumpClampDesc> mcmMinJumpClampDesc;
-            inline static TranslationKey<s_MCMHorseAttackLabel> mcmHorseAttackLabel;
-            inline static TranslationKey<s_MCMHorseAttackDesc> mcmHorseAttackDesc;
-            inline static TranslationKey<s_MCMSwapInputLabel> mcmSwapInputLabel;
-            inline static TranslationKey<s_MCMSwapInputDesc> mcmSwapInputDesc;
-            inline static TranslationKey<s_MCMPettingLabel> mcmPettingLabel;
-            inline static TranslationKey<s_MCMPettingDesc> mcmPettingDesc;
-            inline static TranslationKey<s_MCMGrazeLabel> mcmGrazeLabel;
-            inline static TranslationKey<s_MCMGrazeDesc> mcmGrazeDesc;
-            inline static TranslationKey<s_MCMSprintKnockLabel> mcmSprintKnockLabel;
-            inline static TranslationKey<s_MCMSprintKnockDesc> mcmSprintKnockDesc;
-            inline static TranslationKey<s_MCMHitTolerationLabel> mcmHitTolerationLabel;
-            inline static TranslationKey<s_MCMHitTolerationDesc> mcmHitTolerationDesc;
+            static CachedStrings *GetSingleton() {
+                static CachedStrings instance;
+                return &instance;
+            }
+
+            TranslationKey<s_UpStage1> upStage1;
+            TranslationKey<s_UpStage3> upStage3;
+            TranslationKey<s_UpStage4> upStage4;
+            TranslationKey<s_UpStage5> upStage5;
+            TranslationKey<s_DownStage2> downStage2;
+            TranslationKey<s_DownStage1> downStage1;
+            TranslationKey<s_DownStage0> downStage0;
+            TranslationKey<s_HorsepowerFeedTutorial> horsepowerFeedTutorial;
+            TranslationKey<s_HorsepowerFeedTutorialHeader> horsepowerFeedTutorialHeader;
+            TranslationKey<s_MCMSprintInterruptLabel> mcmSprintInterruptLabel;
+            TranslationKey<s_MCMSprintInterruptDesc> mcmSprintInterruptDesc;
+            TranslationKey<s_MCMMinJumpClampLabel> mcmMinJumpClampLabel;
+            TranslationKey<s_MCMMinJumpClampDesc> mcmMinJumpClampDesc;
+            TranslationKey<s_MCMHorseAttackLabel> mcmHorseAttackLabel;
+            TranslationKey<s_MCMHorseAttackDesc> mcmHorseAttackDesc;
+            TranslationKey<s_MCMSwapInputLabel> mcmSwapInputLabel;
+            TranslationKey<s_MCMSwapInputDesc> mcmSwapInputDesc;
+            TranslationKey<s_MCMPettingLabel> mcmPettingLabel;
+            TranslationKey<s_MCMPettingDesc> mcmPettingDesc;
+            TranslationKey<s_MCMGrazeLabel> mcmGrazeLabel;
+            TranslationKey<s_MCMGrazeDesc> mcmGrazeDesc;
+            TranslationKey<s_MCMSprintKnockLabel> mcmSprintKnockLabel;
+            TranslationKey<s_MCMSprintKnockDesc> mcmSprintKnockDesc;
+            TranslationKey<s_MCMHitTolerationLabel> mcmHitTolerationLabel;
+            TranslationKey<s_MCMHitTolerationDesc> mcmHitTolerationDesc;
 
             inline static void Initialize() {
                 auto Fetch = [](auto &target) { translation::Translate(target.Key, target.CachedValue); };
-
-                Fetch(upStage1);
-                Fetch(upStage3);
-                Fetch(upStage4);
-                Fetch(upStage5);
-                Fetch(downStage2);
-                Fetch(downStage1);
-                Fetch(downStage0);
-                Fetch(horsepowerFeedTutorial);
-                Fetch(horsepowerFeedTutorialHeader);
-                Fetch(mcmSprintInterruptLabel);
-                Fetch(mcmSprintInterruptDesc);
-                Fetch(mcmMinJumpClampLabel);
-                Fetch(mcmMinJumpClampDesc);
-                Fetch(mcmHorseAttackLabel);
-                Fetch(mcmHorseAttackDesc);
-                Fetch(mcmSwapInputLabel);
-                Fetch(mcmSwapInputDesc);
-                Fetch(mcmPettingLabel);
-                Fetch(mcmPettingDesc);
-                Fetch(mcmGrazeLabel);
-                Fetch(mcmGrazeDesc);
-                Fetch(mcmSprintKnockLabel);
-                Fetch(mcmSprintKnockDesc);
-                Fetch(mcmHitTolerationLabel);
-                Fetch(mcmHitTolerationDesc);
+                auto cs = CachedStrings::GetSingleton();
+                Fetch(cs->upStage1);
+                Fetch(cs->upStage3);
+                Fetch(cs->upStage4);
+                Fetch(cs->upStage5);
+                Fetch(cs->downStage2);
+                Fetch(cs->downStage1);
+                Fetch(cs->downStage0);
+                Fetch(cs->horsepowerFeedTutorial);
+                Fetch(cs->horsepowerFeedTutorialHeader);
+                Fetch(cs->mcmSprintInterruptLabel);
+                Fetch(cs->mcmSprintInterruptDesc);
+                Fetch(cs->mcmMinJumpClampLabel);
+                Fetch(cs->mcmMinJumpClampDesc);
+                Fetch(cs->mcmHorseAttackLabel);
+                Fetch(cs->mcmHorseAttackDesc);
+                Fetch(cs->mcmSwapInputLabel);
+                Fetch(cs->mcmSwapInputDesc);
+                Fetch(cs->mcmPettingLabel);
+                Fetch(cs->mcmPettingDesc);
+                Fetch(cs->mcmGrazeLabel);
+                Fetch(cs->mcmGrazeDesc);
+                Fetch(cs->mcmSprintKnockLabel);
+                Fetch(cs->mcmSprintKnockDesc);
+                Fetch(cs->mcmHitTolerationLabel);
+                Fetch(cs->mcmHitTolerationDesc);
             }
+
+        private:
+            CachedStrings() = default;
     };
 }  // namespace this_plugin
