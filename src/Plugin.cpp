@@ -87,6 +87,8 @@ extern "C" DLLEXPORT bool SKSEPlugin_Load(const LoadInterface *skse) {
                 break;
 
             case SKSE::MessagingInterface::kPostLoadGame:
+                Util::SyncGlobalGrazeValue(ModSettings::GrazeSystem.GetValue());
+
                 if (RE::PlayerCharacter::GetSingleton()->IsOnMount()) {
 #ifdef _DEBUG
                     LOG("Player on mount at save load");

@@ -37,4 +37,22 @@ namespace Util {
             }
         }
     }
+
+    bool SyncGlobalGrazeValue(bool grazing) {
+        auto dh = RE::TESDataHandler::GetSingleton();
+        auto form = dh->LookupForm(0x26, "Horsepower.esp");
+
+        if (!form) {
+            ERROR("Global Value for Grazing System is not found");
+            return false;
+        }
+        auto glbl = form->As<RE::TESGlobal>();
+        if (!glbl) {
+            ERROR("Graze System Global Form ID is wrong, it should be 0x26");
+            return false;
+        }
+
+        glbl->value = grazing;
+        return true;
+    }
 }  // namespace Util

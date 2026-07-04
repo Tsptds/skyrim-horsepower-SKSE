@@ -56,14 +56,7 @@ namespace ModConfigMenu {
         bool grazing = ms::GrazeSystem.GetValue();
         AddSetting(CV(cached::mcmGrazeLabel), CV(cached::mcmGrazeDesc), grazing, [&] {
             ms::GrazeSystem.SetValue(grazing);
-            auto dh = RE::TESDataHandler::GetSingleton();
-            auto form = dh->LookupForm(0x26, "Horsepower.esp");
-            if (form) {
-                auto glbl = form->As<RE::TESGlobal>();
-                if (glbl) {
-                    glbl->value = grazing;
-                }
-            }
+            Util::SyncGlobalGrazeValue(grazing);
         });
 
         bool sprintKnock = ms::SprintJumpKnock.GetValue();
