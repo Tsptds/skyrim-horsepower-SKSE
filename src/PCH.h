@@ -162,10 +162,10 @@ using namespace std::literals;
 namespace logger = SKSE::log;
 
 /* Log macros */
-#define LOG(x, ...) logger::info(x, __VA_ARGS__)
-#define WARN(x, ...) logger::warn(x, __VA_ARGS__)
-#define ERROR(x, ...) logger::error(x, __VA_ARGS__)
-#define CRITICAL(x, ...) logger::error(x, __VA_ARGS__)
+using TRACE = SKSE::log::trace;
+using INFO = SKSE::log::info;
+using WARN = SKSE::log::warn;
+using ERROR = SKSE::log::error;
 
 #define FEED_COUNTER "_Horse_FeedCounter"
 #define FEED_COUNTER_INC "_Horse_IncreaseFeedCounter"
