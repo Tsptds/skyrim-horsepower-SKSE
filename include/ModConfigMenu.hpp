@@ -56,11 +56,21 @@ namespace ModConfigMenu {
         AddSetting("Graze System",
                    "Enable the hunger / grazing system. Feed your horse when on grassy surfaces with sneak key. Horses will graze on their "
                    "own as well.",
-                   grazing, [&] { ms::GrazeSystem.SetValue(grazing); });
+                   grazing, [&] {
+                       ms::GrazeSystem.SetValue(grazing);
+                       auto dh = RE::TESDataHandler::GetSingleton();
+                       auto form = dh->LookupForm(0x26, "Horsepower.esp");
+                       if (form) {
+                           auto glbl = form->As<RE::TESGlobal>();
+                           if (glbl) {
+                               glbl->value = grazing;
+                           }
+                       }
+                   });
 
         bool sprintKnock = ms::SprintJumpKnock.GetValue();
-        AddSetting("Sprint Jump Knock", "Knock actors with a sprinting jump, requires graze level 1 or above if grazing is enabled.", sprintKnock,
-                   [&] { ms::SprintJumpKnock.SetValue(sprintKnock); });
+        AddSetting("Sprint Jump Knock", "Knock actors with a sprinting jump, requires graze level 1 or above if grazing is enabled.",
+                   sprintKnock, [&] { ms::SprintJumpKnock.SetValue(sprintKnock); });
 
         bool hitToleration = ms::HorseHitToleration.GetValue();
         AddSetting("Hit Toleration",

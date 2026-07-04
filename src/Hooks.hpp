@@ -106,16 +106,17 @@ namespace Hooks {
                 }
 
                 else if (ev == FEED_COUNTER_DEC) {
+                    int32_t ctr;
+                    RE::BSFixedString var{FEED_COUNTER};
+                    actor->GetGraphVariableInt(var, ctr);
+
+                    if (ctr > 0) {
+                        ctr -= 1;
+                        actor->SetGraphVariableInt(var, ctr);
+                    }
+
+                    /* Notifications */
                     if (ModSettings::GrazeSystem.GetValue()) {
-                        int32_t ctr;
-                        RE::BSFixedString var{FEED_COUNTER};
-                        actor->GetGraphVariableInt(var, ctr);
-
-                        if (ctr > 0) {
-                            ctr -= 1;
-                            actor->SetGraphVariableInt(var, ctr);
-                        }
-
                         if (RE::ActorPtr rider; actor->GetMountedBy(rider) && rider->IsPlayerRef()) {
                             constexpr std::string trns2 = "$DownStage2";
                             constexpr std::string trns1 = "$DownStage1";
@@ -143,16 +144,17 @@ namespace Hooks {
                     }
                 }
                 else if (ev == FEED_COUNTER_INC) {
+                    int32_t ctr;
+                    RE::BSFixedString var{FEED_COUNTER};
+                    actor->GetGraphVariableInt(var, ctr);
+
+                    if (ctr < 5) {
+                        ctr += 1;
+                        actor->SetGraphVariableInt(var, ctr);
+                    }
+
+                    /* Notifications */
                     if (ModSettings::GrazeSystem.GetValue()) {
-                        int32_t ctr;
-                        RE::BSFixedString var{FEED_COUNTER};
-                        actor->GetGraphVariableInt(var, ctr);
-
-                        if (ctr < 5) {
-                            ctr += 1;
-                            actor->SetGraphVariableInt(var, ctr);
-                        }
-
                         if (RE::ActorPtr rider; actor->GetMountedBy(rider) && rider->IsPlayerRef()) {
                             constexpr std::string trns5 = "$UpStage5";
                             constexpr std::string trns4 = "$UpStage4";

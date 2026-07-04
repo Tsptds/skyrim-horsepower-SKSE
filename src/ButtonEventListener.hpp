@@ -74,7 +74,7 @@ namespace Listeners {
                     int fed{0};
                     horse->GetGraphVariableInt(FEED_COUNTER, fed);
 
-                    if (fed > 0) {
+                    if (fed > 0 || !ModSettings::GrazeSystem.GetValue()) {
                         [horse] {
                             const auto bumped = horse->GetCharController()->bumpedCharCollisionObject;
                             if (!bumped) return false;
@@ -84,7 +84,7 @@ namespace Listeners {
 
                             if (!ref->IsActor()) return false;
                             const auto act = ref->As<RE::Actor>();
-                            horse->GetActorRuntimeData().currentProcess->KnockExplosion(act, horse->GetPosition(), 1.f);
+                            horse->GetActorRuntimeData().currentProcess->KnockExplosion(act, horse->GetPosition(), 2.f);
                             RE::PlaySound("PHYBodyMediumDirtH");
 
                             return true;
