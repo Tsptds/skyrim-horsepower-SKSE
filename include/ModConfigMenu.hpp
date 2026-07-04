@@ -2,10 +2,13 @@
 #include "SKSEMenuFramework.h"
 #include "ModSettings.h"
 #include "Fixes.hpp"
+#include "MCM_Translation.h"
 
 namespace ModConfigMenu {
 
+#define CV(x) x.CachedValue.c_str()  // cached value
     namespace ms = ModSettings;
+    using cached = this_plugin::CachedStrings;
 
     void Settings() {
         auto AddSetting = [&](const char *label, const char *desc, bool &value, std::function<void()> onUpdate = nullptr) {
@@ -26,57 +29,50 @@ namespace ModConfigMenu {
         };
 
         bool sprint = ms::SprintInterruption.GetValue();
-        AddSetting("Sprint Interruption", "Getting too slow with your horse will cause it to rear-up", sprint,
+        AddSetting(CV(cached::mcmSprintInterruptLabel), CV(cached::mcmSprintInterruptDesc), sprint,
                    [&] { ms::SprintInterruption.SetValue(sprint); });
 
         bool jump = ms::DisableModMovingJumpHeight.GetValue();
-        AddSetting("Allow Lower Jump Heights While Moving",
-                   "By default, your minimum jump height is increased. For compatibility with other mods that lower the default jump "
-                   "height, keep it off unless you see other issues.",
-                   jump, [&] {
-                       ms::DisableModMovingJumpHeight.SetValue(jump);
-                       Fixes::Compatibility::SetModJump();
-                   });
+        AddSetting(CV(cached::mcmMinJumpClampLabel), CV(cached::mcmMinJumpClampDesc), jump, [&] {
+            ms::DisableModMovingJumpHeight.SetValue(jump);
+            Fixes::Compatibility::SetModJump();
+        });
 
         bool horseAttacks = ms::ManualHorseAttacks.GetValue();
-        AddSetting("Horse Attack", "Make your horse attack by pressing both attack buttons at once", horseAttacks,
+        AddSetting(CV(cached::mcmHorseAttackLabel), CV(cached::mcmHorseAttackDesc), horseAttacks,
                    [&] { ms::ManualHorseAttacks.SetValue(horseAttacks); });
 
         bool swap = ms::SwapHands.GetValue();
-        AddSetting("Swap Horseback Attack Inputs", "Left click to attack left, right click to attack right", swap, [&] {
+        AddSetting(CV(cached::mcmSwapInputLabel), CV(cached::mcmSwapInputDesc), swap, [&] {
             ms::SwapHands.SetValue(swap);
             Fixes::Attacks::SetHandSwapping();
         });
 
         bool petting = ms::ManualPetting.GetValue();
-        AddSetting("Manual Horseback Petting", "Pet the horse with sneak key on horseback", petting,
-                   [&] { ms::ManualPetting.SetValue(petting); });
+        AddSetting(CV(cached::mcmPettingLabel), CV(cached::mcmPettingDesc), petting, [&] { ms::ManualPetting.SetValue(petting); });
 
         bool grazing = ms::GrazeSystem.GetValue();
-        AddSetting("Graze System",
-                   "Enable the hunger / grazing system. Feed your horse when on grassy surfaces with sneak key. Horses will graze on their "
-                   "own as well.",
-                   grazing, [&] {
-                       ms::GrazeSystem.SetValue(grazing);
-                       auto dh = RE::TESDataHandler::GetSingleton();
-                       auto form = dh->LookupForm(0x26, "Horsepower.esp");
-                       if (form) {
-                           auto glbl = form->As<RE::TESGlobal>();
-                           if (glbl) {
-                               glbl->value = grazing;
-                           }
-                       }
-                   });
+        AddSetting(CV(cached::mcmGrazeLabel), CV(cached::mcmGrazeDesc), grazing, [&] {
+            ms::GrazeSystem.SetValue(grazing);
+            auto dh = RE::TESDataHandler::GetSingleton();
+            auto form = dh->LookupForm(0x26, "Horsepower.esp");
+            if (form) {
+                auto glbl = form->As<RE::TESGlobal>();
+                if (glbl) {
+                    glbl->value = grazing;
+                }
+            }
+        });
 
         bool sprintKnock = ms::SprintJumpKnock.GetValue();
-        AddSetting("Sprint Jump Knock", "Knock actors with a sprinting jump, requires graze level 1 or above if grazing is enabled.",
-                   sprintKnock, [&] { ms::SprintJumpKnock.SetValue(sprintKnock); });
+        AddSetting(CV(cached::mcmSprintKnockLabel), CV(cached::mcmSprintKnockDesc), sprintKnock,
+                   [&] { ms::SprintJumpKnock.SetValue(sprintKnock); });
 
         bool hitToleration = ms::HorseHitToleration.GetValue();
-        AddSetting("Hit Toleration",
-                   "Horses do a rearup after taking hits between 5-20 randomly, including spells. There's a cooldown window to prevent "
-                   "stunlock. The horse has to be hit, not the rider.",
-                   hitToleration, [&] { ms::HorseHitToleration.SetValue(hitToleration); });
+        AddSetting(CV(cached::mcmHitTolerationLabel), CV(cached::mcmHitTolerationDesc), hitToleration,
+                   [&] { ms::HorseHitToleration.SetValue(hitToleration); });
+
+#undef CV
     }
     void Experimental() {
         auto AddSetting = [&](const char *label, const char *desc, bool &value, std::function<void()> onUpdate = nullptr) {
@@ -106,6 +102,7 @@ namespace ModConfigMenu {
 
     void SetupMenu() {
         if (!SKSEMenuFramework::IsInstalled()) return;
+        this_plugin::CachedStrings::Initialize();
 
         SKSEMenuFramework::SetSection("HorsePower");
         SKSEMenuFramework::AddSectionItem("Settings", Settings);
