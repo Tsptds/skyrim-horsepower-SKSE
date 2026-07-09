@@ -4,6 +4,7 @@
 #include "ButtonEventListener.hpp"
 #include "Fixes.hpp"
 #include "Util.hpp"
+#include "MCM_Translation.h"
 
 namespace Hooks {
     class AnimationEventHook {
@@ -118,28 +119,23 @@ namespace Hooks {
                     /* Notifications */
                     if (ModSettings::GrazeSystem.GetValue()) {
                         if (RE::ActorPtr rider; actor->GetMountedBy(rider) && rider->IsPlayerRef()) {
-                            constexpr std::string trns2 = "$DownStage2";
-                            constexpr std::string trns1 = "$DownStage1";
-                            constexpr std::string trns0 = "$DownStage0";
+                            auto trns = this_plugin::CachedStrings::GetSingleton();
 
                             std::string msg{""};
-                            std::string trns_out{""};
                             switch (ctr) {
                                 case 2:
-                                    SKSE::Translation::Translate(trns2, trns_out);
-                                    msg = fmt::format("{} {}", actor->GetName(), trns_out);
+                                    msg = trns->downStage2.CachedValue;
                                     break;
                                 case 1:
-                                    SKSE::Translation::Translate(trns1, trns_out);
-                                    msg = fmt::format("{} {}", actor->GetName(), trns_out);
+                                    msg = trns->downStage1.CachedValue;
                                     break;
                                 case 0:
-                                    SKSE::Translation::Translate(trns0, trns_out);
-                                    msg = fmt::format("{} {}", actor->GetName(), trns_out);
+                                    msg = trns->downStage0.CachedValue;
                                     break;
                             }
 
-                            if (msg != "") RE::SendHUDMessage::ShowHUDMessage(msg.c_str(), nullptr, false);
+                            if (msg != "")
+                                RE::SendHUDMessage::ShowHUDMessage((fmt::format("{} {}", actor->GetName(), msg)).c_str(), nullptr, false);
                         }
                     }
                 }
@@ -156,33 +152,26 @@ namespace Hooks {
                     /* Notifications */
                     if (ModSettings::GrazeSystem.GetValue()) {
                         if (RE::ActorPtr rider; actor->GetMountedBy(rider) && rider->IsPlayerRef()) {
-                            constexpr std::string trns5 = "$UpStage5";
-                            constexpr std::string trns4 = "$UpStage4";
-                            constexpr std::string trns3 = "$UpStage3";
-                            constexpr std::string trns1 = "$UpStage1";
+                            auto trns = this_plugin::CachedStrings::GetSingleton();
 
                             std::string msg{""};
-                            std::string trns_out{""};
                             switch (ctr) {
                                 case 5:
-                                    SKSE::Translation::Translate(trns5, trns_out);
-                                    msg = fmt::format("{} {}", actor->GetName(), trns_out);
+                                    msg = trns->upStage5.CachedValue;
                                     break;
                                 case 4:
-                                    SKSE::Translation::Translate(trns4, trns_out);
-                                    msg = fmt::format("{} {}", actor->GetName(), trns_out);
+                                    msg = trns->upStage4.CachedValue;
                                     break;
                                 case 3:
-                                    SKSE::Translation::Translate(trns3, trns_out);
-                                    msg = fmt::format("{} {}", actor->GetName(), trns_out);
+                                    msg = trns->upStage3.CachedValue;
                                     break;
                                 case 1:
-                                    SKSE::Translation::Translate(trns1, trns_out);
-                                    msg = fmt::format("{} {}", actor->GetName(), trns_out);
+                                    msg = trns->upStage1.CachedValue;
                                     break;
                             }
 
-                            if (msg != "") RE::SendHUDMessage::ShowHUDMessage(msg.c_str(), nullptr, false);
+                            if (msg != "")
+                                RE::SendHUDMessage::ShowHUDMessage((fmt::format("{} {}", actor->GetName(), msg)).c_str(), nullptr, false);
                         }
                     }
                 }
@@ -266,18 +255,13 @@ bool Hooks::NotifyGraphHandler::OnCharacter(RE::IAnimationGraphManagerHolder *a_
         }
     }
     else if (a_eventName == "idleGrazing") {
-        const auto ctrl = actor->GetCharController();
-        const auto mat = ctrl->surfaceMaterial;
+        auto pos = actor->GetPosition();
         using mi = RE::MATERIAL_ID;
+        RE::MATERIAL_ID mat = RE::TES::GetSingleton()->GetLandMaterialType(pos);
 
-        constexpr float maxSubmerge = 0.15f;
-        const auto wld = actor->GetParentCell();
-        const float submerged = wld ? actor->GetSubmergedLevel(actor->GetPositionZ(), wld) : 0;
         switch (mat) {
-            case mi::kNone:
             case mi::kGrass:
             case mi::kDirt:
-                if (submerged > maxSubmerge) return false;
                 break;
 
             default:
