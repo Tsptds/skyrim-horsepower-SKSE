@@ -2,6 +2,7 @@
 #include "ModSettings.h"
 #include "VectorUtil.hpp"
 #include "HitEventListener.hpp"
+#include "MCM_Translation.h"
 
 namespace Listeners {
 
@@ -112,12 +113,14 @@ namespace Listeners {
                                 horse->GetGraphVariableInt(FEED_COUNTER, hunger);
 
                                 if (hunger > 4) {
+                                    const auto msg = this_plugin::CachedStrings::GetSingleton()->upStage5.CachedValue;
+                                    RE::SendHUDMessage::ShowHUDMessage(fmt::format("{} {}", horse->GetName(), msg).c_str());
                                     return horse->NotifyAnimationGraph("IdlePet");
                                 }
                             }
 
-                            auto pos = horse->GetPosition();
                             // RE::TESLandTexture *landTex = RE::TES::GetSingleton()->GetLandTexture(pos);
+                            auto pos = horse->GetPosition();
                             RE::MATERIAL_ID mat = RE::TES::GetSingleton()->GetLandMaterialType(pos);
                             // LOG("{}", mat);
 
@@ -125,15 +128,18 @@ namespace Listeners {
                             // const auto wld = horse->GetParentCell();
                             // const float submerged = wld ? horse->GetSubmergedLevel(horse->GetPositionZ(), wld) : 0;
                             // if (landTex && !landTex->textureGrassList.empty()) {
-                            if (mat == RE::MATERIAL_ID::kGrass) {
-                                // Feed
-                                // if (submerged > maxSubmerge) return false;
-                                return horse->NotifyAnimationGraph("idleGrazing");
-                            }
+                            switch (mat) {
+                                case RE::MATERIAL_ID::kGrass:
+                                case RE::MATERIAL_ID::kDirt:
 
-                            else if (ModSettings::ManualPetting.GetValue()) {
-                                // Pet
-                                return horse->NotifyAnimationGraph("IdlePet");
+                                    // Feed
+                                    return horse->NotifyAnimationGraph("idleGrazing");
+
+                                default:
+                                    if (ModSettings::ManualPetting.GetValue()) {
+                                        // Pet
+                                        return horse->NotifyAnimationGraph("IdlePet");
+                                    }
                             }
                         }
                         return false;
