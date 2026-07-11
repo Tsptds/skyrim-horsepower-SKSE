@@ -53,15 +53,22 @@ namespace Hooks {
         const auto actor = a_animGraphMgr->graphs[a_animGraphMgr->GetRuntimeData().activeGraph].get()->holder;
 
         if (actor && actor->IsHorse()) {
+            using flag = RE::RACE_DATA::Flag;
             bool enabled = ModSettings::RemoveNoKnockdownFlag.GetValue();
             auto race = actor->GetRace();
-            if (enabled) {
-                INFO("Removing NoKnockdown flag of: {}", race->GetName());
-                race->data.flags.reset(RE::RACE_DATA::Flag::kNoKnockdowns);
-            }
-            else {
-                race->data.flags.set(RE::RACE_DATA::Flag::kNoKnockdowns);
-            }
+            if (race)
+                if (enabled) {
+                    if (race->data.flags.any(flag::kNoKnockdowns)) {
+                        INFO("Removing NoKnockdown flag of: {}", race->GetName());
+                        race->data.flags.reset(flag::kNoKnockdowns);
+                    }
+                }
+                else {
+                    if (!race->data.flags.any(flag::kNoKnockdowns)) {
+                        INFO("Restored NoKnockdown flag of: {}", race->GetName());
+                        race->data.flags.set(RE::RACE_DATA::Flag::kNoKnockdowns);
+                    }
+                }
         }
     }
 }  // namespace Hooks
