@@ -11,6 +11,7 @@ namespace ModSettings {
     inline REX::INI::Bool GrazeSystem{"Settings", "bGrazeSystem", true};
     inline REX::INI::Bool SprintJumpKnock{"Settings", "bSprintJumpKnock", true};
     inline REX::INI::Bool HorseHitToleration{"Settings", "bHorseHitToleration", true};
+    inline REX::INI::Bool RemoveNoKnockdownFlag{"Settings", "bRemoveNoKnockdownFlag", true};
 
     void ReadINI() {
         const auto ini = REX::INI::SettingStore::GetSingleton();

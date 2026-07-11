@@ -1,4 +1,5 @@
 #include "Hooks.hpp"
+#include "GraphLoadHook.hpp"
 #include "ButtonEventListener.hpp"
 #include "DeathEventListener.hpp"
 #include "Plugin.h"
@@ -72,6 +73,9 @@ extern "C" DLLEXPORT bool SKSEPlugin_Load(const LoadInterface *skse) {
         switch (msg->type) {
             case SKSE::MessagingInterface::kPostLoad:
                 Hooks::AnimationEventHook::InstallAnimEventHook();
+                if(Hooks::GraphLoadHook::InstallGraphManagerHooks()){
+                    INFO("Graph Load Hook Installed");
+                }
                 Hooks::NotifyGraphHandler::InstallGraphNotifyHook();
 #ifdef _DEBUG
                 LOG("Installed Hooks");

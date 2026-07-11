@@ -67,6 +67,10 @@ namespace ModConfigMenu {
         AddSetting(CV(cached::mcmHitTolerationLabel), CV(cached::mcmHitTolerationDesc), hitToleration,
                    [&] { ms::HorseHitToleration.SetValue(hitToleration); });
 
+        bool allowRagdoll = ms::RemoveNoKnockdownFlag.GetValue();
+        AddSetting(CV(cached::mcmAllowRagdollLabel), CV(cached::mcmAllowRagdollDesc), allowRagdoll,
+                   [&] { ms::RemoveNoKnockdownFlag.SetValue(allowRagdoll); });
+
 #undef CV
     }
     void Experimental() {
