@@ -73,22 +73,21 @@ namespace Fixes {
             using jumpHeightMod_t = void (*)(const RE::Actor *);
 
             inline static void ModifyStandingAndMovingJump(const RE::Actor *actor) {
-                const auto &ctrl = actor->GetCharController();
-                auto &JH = ctrl->jumpHeight;
-                // LOG("{}", JH);
+                const auto ctrl = actor->GetCharController();
                 // Luckily event fires after jump height is set, so I can overwrite it here, it's set for every jump individually
                 bool isStandingjump;
+                auto &JH = ctrl->jumpHeight; // Ref
+                // LOG("{}", JH);
                 actor->GetGraphVariableBool("_HORSE_IncreasedJump", isStandingjump);
 
                 JH = isStandingjump ? 2.5f : (JH < 1.2f ? 1.2f : JH);  // Default 1.08585
             }
             inline static void ModifyStandingJumpOnly(const RE::Actor *actor) {
-                const auto &ctrl = actor->GetCharController();
-                auto &JH = ctrl->jumpHeight;
+                const auto ctrl = actor->GetCharController();
                 bool isStandingjump;
                 actor->GetGraphVariableBool("_HORSE_IncreasedJump", isStandingjump);
 
-                if (isStandingjump) JH = 2.5f;
+                if (isStandingjump) ctrl->jumpHeight = 2.5f;
             }
 
         public:

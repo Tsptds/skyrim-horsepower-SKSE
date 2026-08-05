@@ -26,7 +26,7 @@ namespace Hooks {
         private:
             static inline RE::BSEventNotifyControl Hook(RE::BSAnimationGraphManager *a_this, const RE::BSAnimationGraphEvent *a_event,
                                                         RE::BSTEventSource<RE::BSAnimationGraphEvent> *a_eventSource) {
-                const auto &actor = a_this->graphs[a_this->GetRuntimeData().activeGraph]->holder;
+                const auto actor = a_this->graphs[a_this->GetRuntimeData().activeGraph]->holder;
                 if (!actor) return _ProcessEvent(a_this, a_event, a_eventSource);
 
                 if (actor->IsPlayerRef()) {
@@ -43,7 +43,7 @@ namespace Hooks {
                     return _ProcessEvent(a_this, a_event, a_eventSource);
                 }
                 if (!actor->IsHorse()) return _ProcessEvent(a_this, a_event, a_eventSource);
-                const auto &ev = a_event->tag;
+                const auto ev = a_event->tag;
 
                 /* Ragdoll enable activation */
                 if (ev == "GetUpEnd") {
@@ -215,11 +215,11 @@ bool Hooks::NotifyGraphHandler::OnCharacter(RE::IAnimationGraphManagerHolder *a_
 
     if (!mngr) return _origCharacter(a_this, a_eventName);
 
-    const auto &graph = mngr->graphs[0];
+    const auto graph = mngr->graphs[0];
 
     if (!graph) return _origCharacter(a_this, a_eventName);
 
-    const auto &actor = graph->holder;
+    const auto actor = graph->holder;
 
     if (actor->IsOnMount()) {
         if (Util::IsAllowedToReplaceEvent(actor)) {
@@ -301,7 +301,7 @@ bool Hooks::NotifyGraphHandler::OnPlayer(RE::IAnimationGraphManagerHolder *a_thi
         return res;
     }
 
-    const auto &pl = RE::PlayerCharacter::GetSingleton();
+    const auto pl = RE::PlayerCharacter::GetSingleton();
     if (pl->IsOnMount()) {
         if (Util::IsAllowedToReplaceEvent(pl)) {
             Fixes::Attacks::ApplyFix(a_eventName);

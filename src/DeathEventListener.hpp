@@ -12,7 +12,7 @@ namespace Listeners {
             RE::BSEventNotifyControl ProcessEvent(const RE::TESDeathEvent *a_event, RE::BSTEventSource<RE::TESDeathEvent> *) override {
                 if (!a_event || !a_event->actorDying) return RE::BSEventNotifyControl::kContinue;
 
-                const auto &ref = a_event->actorDying;
+                const auto ref = a_event->actorDying;
                 if (!ref->IsActor()) return RE::BSEventNotifyControl::kContinue;
 
                 if (!ref->IsHorse()) return RE::BSEventNotifyControl::kContinue;

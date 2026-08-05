@@ -24,17 +24,17 @@ namespace Util {
         if (!actor) {
             return result;
         }
-        const auto &cell = actor->GetParentCell();
+        const auto cell = actor->GetParentCell();
         if (!cell) {
             return result;
         }
-        const auto &bhkWorld = cell->GetbhkWorld();
+        const auto bhkWorld = cell->GetbhkWorld();
         if (!bhkWorld) {
             return result;
         }
 
         RE::bhkPickData pickData;
-        const auto &havokWorldScale = RE::bhkWorld::GetWorldScale();
+        const auto havokWorldScale = RE::bhkWorld::GetWorldScale();
 
         // Set ray start and end points (scaled to Havok world)
         pickData.rayInput.from = rayStart * havokWorldScale;

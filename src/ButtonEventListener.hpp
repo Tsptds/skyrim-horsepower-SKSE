@@ -45,17 +45,17 @@ namespace Listeners {
         bool left{false};
         bool right{false};
 
-        const auto &pl = RE::PlayerCharacter::GetSingleton();
+        const auto pl = RE::PlayerCharacter::GetSingleton();
         if (!pl->IsOnMount()) return RE::BSEventNotifyControl::kContinue;
 
         RE::ActorPtr mnt;
         if (!pl->GetMount(mnt)) RE::BSEventNotifyControl::kContinue;
-        const auto &horse = mnt.get();
-        const auto &ctrl = horse->GetCharController();
+        const auto horse = mnt.get();
+        const auto ctrl = horse->GetCharController();
         if (!ctrl) RE::BSEventNotifyControl::kContinue;
 
         for (auto event = *a_event; event; event = event->next) {
-            const auto &UE = RE::UserEvents::GetSingleton();
+            const auto UE = RE::UserEvents::GetSingleton();
 
             if (ModSettings::ManualHorseAttacks.GetValue()) {
                 if (pl->AsActorState()->IsWeaponDrawn()) {
@@ -154,11 +154,11 @@ namespace Listeners {
             bool turning;
             horse->GetGraphVariableBool("_Horse_IsCannedTurn", turning);
 
-            const auto &horseFwd = Util::Vec4_To_Vec3(ctrl->forwardVec * -1);  // This shit is inverted for some reason
+            const auto horseFwd = Util::Vec4_To_Vec3(ctrl->forwardVec * -1);  // This shit is inverted for some reason
 
             auto horseCam = [horseFwd] -> RE::NiPoint3 {
-                const auto &cam = RE::PlayerCamera::GetSingleton();
-                const auto &camNode = cam->cameraRoot;
+                const auto cam = RE::PlayerCamera::GetSingleton();
+                const auto camNode = cam->cameraRoot;
                 RE::NiPoint3 camForward = camNode->world.rotate * RE::NiPoint3{0, 1, 0};
                 RE::NiPoint3 camRight = camNode->world.rotate * RE::NiPoint3{1, 0, 0};
 
@@ -190,7 +190,7 @@ namespace Listeners {
 
             // LOG("{}", dot);
 
-            const auto &fwdVel = [&horse, &horseFwd] -> float {
+            const auto fwdVel = [horse, horseFwd] -> float {
                 RE::NiPoint3 vel;
                 horse->GetLinearVelocity(vel);
                 vel.z = 0;
@@ -205,14 +205,15 @@ namespace Listeners {
                 horse->NotifyAnimationGraph("_CannedEarlyExit");  // Early exit
             }
 
+            /* DOT: ~120 = -0.5 / ~75 = 0.2588 / ~60 = 0.5 / ~90 = 0 */
             else if (fwdVel() < 200.f) {
-                if (dot <= -0.5) {  // ~120°
+                if (dot <= -0.5) {
                     if (crossZ > 0.0f)
                         horse->NotifyAnimationGraph("cannedTurnLeft180");
                     else
                         horse->NotifyAnimationGraph("cannedTurnRight180");
                 }
-                else if (dot <= 0.2588f) {  // ~75 = 0.2588 / ~60° = 0.5 / ~90° = 0
+                else if (dot <= 0.2588f) {
                     if (crossZ > 0.0f)
                         horse->NotifyAnimationGraph("cannedTurnLeft90");
                     else

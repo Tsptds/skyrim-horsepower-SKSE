@@ -13,8 +13,8 @@ namespace Listeners {
             RE::BSEventNotifyControl ProcessEvent(const RE::TESHitEvent *a_event, RE::BSTEventSource<RE::TESHitEvent> *) override {
                 if (!a_event) return RE::BSEventNotifyControl::kContinue;
 
-                const auto &attacker = a_event->cause;
-                const auto &target = a_event->target;
+                const auto attacker = a_event->cause;
+                const auto target = a_event->target;
                 if (attacker && target) {
                     if (!attacker->IsActor() || !target->IsActor()) return RE::BSEventNotifyControl::kContinue;
 
