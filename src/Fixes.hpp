@@ -64,7 +64,6 @@ namespace Fixes {
             inline static void SetHandSwapping() {
                 bool swappingHands = ModSettings::SwapHands.GetValue();
                 ApplyFix = swappingHands ? Attacks::FixAttackAnnotationsAndHands : Attacks::FixLeftAttackAnnotationsOnly;
-                // LOG("Left Hand Attack Event Fix Installed, Attack Inputs Swapped: {}", swappingHands);
             }
     };
 
@@ -76,8 +75,7 @@ namespace Fixes {
                 const auto ctrl = actor->GetCharController();
                 // Luckily event fires after jump height is set, so I can overwrite it here, it's set for every jump individually
                 bool isStandingjump;
-                auto &JH = ctrl->jumpHeight; // Ref
-                // LOG("{}", JH);
+                auto &JH = ctrl->jumpHeight;  // Ref
                 actor->GetGraphVariableBool("_HORSE_IncreasedJump", isStandingjump);
 
                 JH = isStandingjump ? 2.5f : (JH < 1.2f ? 1.2f : JH);  // Default 1.08585
@@ -96,7 +94,6 @@ namespace Fixes {
             inline static void SetModJump() {
                 bool standingOnly = ModSettings::DisableModMovingJumpHeight.GetValue();
                 ModJump = standingOnly ? ModifyStandingJumpOnly : ModifyStandingAndMovingJump;
-                // LOG("Jump Height Mod Installed, Modify Standing Only: {}", standingOnly);
             }
     };
 

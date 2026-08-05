@@ -48,9 +48,7 @@ namespace Hooks {
                 /* Ragdoll enable activation */
                 if (ev == "GetUpEnd") {
                     if (actor->IsActivationBlocked()) {
-#ifdef _DEBUG
-                        LOG("GetUpEnd, clear block on {}", actor->GetDisplayFullName());
-#endif
+                        DEBUG("GetUpEnd, clear block on {}", actor->GetDisplayFullName());
                         actor->SetActivationBlocked(false);
                     }
                 }
@@ -72,7 +70,6 @@ namespace Hooks {
                         vel.y *= fwdDir.y;
 
                         const auto fwdVel = vel.Length();
-                        // LOG("speed: {}", fwdVel);
 
                         if (fwdVel > 0 && fwdVel < 50) {
                             actor->NotifyAnimationGraph("IdleRearUp");
@@ -85,7 +82,6 @@ namespace Hooks {
                     const Util::RayCastResult ray =
                         Util::RayCast(actor->GetPosition(), RE::NiPoint3(0, 0, -1), 35.f, RE::COL_LAYER::kTransparent, actor);
 
-                    // LOG("{}", ray.distance);
                     if (ray.didHit) {
                         actor->NotifyAnimationGraph("LandStart");
                     }
@@ -231,15 +227,12 @@ bool Hooks::NotifyGraphHandler::OnCharacter(RE::IAnimationGraphManagerHolder *a_
 
     /* Ragdoll block activation */
     if (a_eventName == "Ragdoll") {
-        // LOG("RAGDOLL");
 
         if (actor->IsDead() || actor->IsDead(false)) return _origCharacter(a_this, a_eventName);
 
         RE::ActorPtr riderPtr;
         if (actor->GetMountedBy(riderPtr)) {
-#ifdef _DEBUG
-            LOG("Knocked rider {}", riderPtr->GetDisplayFullName());
-#endif
+            DEBUG("Knocked rider {}", riderPtr->GetDisplayFullName());
 
             RE::Actor *rider = riderPtr.get();
 
@@ -249,9 +242,7 @@ bool Hooks::NotifyGraphHandler::OnCharacter(RE::IAnimationGraphManagerHolder *a_
 
         if (!actor->IsActivationBlocked()) {
             actor->SetActivationBlocked(true);
-#ifdef _DEBUG
-            LOG("blocked activation on {}", actor->GetDisplayFullName());
-#endif
+            DEBUG("blocked activation on {}", actor->GetDisplayFullName());
         }
     }
     else if (a_eventName == "idleGrazing") {
@@ -269,7 +260,6 @@ bool Hooks::NotifyGraphHandler::OnCharacter(RE::IAnimationGraphManagerHolder *a_
         }
     }
 
-    // LOG(">> Char Anim Event: {}", a_eventName.c_str());
     return _origCharacter(a_this, a_eventName);
 }
 
@@ -279,9 +269,7 @@ bool Hooks::NotifyGraphHandler::OnPlayer(RE::IAnimationGraphManagerHolder *a_thi
         if (res) {
             Listeners::ButtonEventListener::GetSingleton()->Register();
             Listeners::HitEventListener::GetSingleton()->Register();
-#ifdef _DEBUG
-            LOG("HORSE ENTER {}", Listeners::ButtonEventListener::GetSingleton()->SinkRegistered);
-#endif
+            DEBUG("HORSE ENTER {}", Listeners::ButtonEventListener::GetSingleton()->SinkRegistered);
             Util::ShowFeedTutorial();
         }
 
@@ -293,9 +281,7 @@ bool Hooks::NotifyGraphHandler::OnPlayer(RE::IAnimationGraphManagerHolder *a_thi
         if (res) {
             Listeners::ButtonEventListener::GetSingleton()->Unregister();
             Listeners::HitEventListener::GetSingleton()->Unregister();
-#ifdef _DEBUG
-            LOG("HORSE EXIT {}", Listeners::ButtonEventListener::GetSingleton()->SinkRegistered);
-#endif
+            DEBUG("HORSE EXIT {}", Listeners::ButtonEventListener::GetSingleton()->SinkRegistered);
         }
 
         return res;

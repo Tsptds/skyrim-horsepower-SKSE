@@ -73,30 +73,24 @@ extern "C" DLLEXPORT bool SKSEPlugin_Load(const LoadInterface *skse) {
         switch (msg->type) {
             case SKSE::MessagingInterface::kPostLoad:
                 Hooks::AnimationEventHook::InstallAnimEventHook();
-                if(Hooks::GraphLoadHook::InstallGraphManagerHooks()){
+                if (Hooks::GraphLoadHook::InstallGraphManagerHooks()) {
                     INFO("Graph Load Hook Installed");
                 }
                 Hooks::NotifyGraphHandler::InstallGraphNotifyHook();
-#ifdef _DEBUG
-                LOG("Installed Hooks");
-#endif
+                DEBUG("Installed Hooks");
                 break;
 
             case SKSE::MessagingInterface::kDataLoaded:
                 ModConfigMenu::SetupMenu();
                 Listeners::DeathEventListener::GetSingleton()->Register();
-#ifdef _DEBUG
-                LOG("Death Event Listener Registered");
-#endif
+                DEBUG("Death Event Listener Registered");
                 break;
 
             case SKSE::MessagingInterface::kPostLoadGame:
                 Util::SyncGlobalGrazeValue(ModSettings::GrazeSystem.GetValue());
 
                 if (RE::PlayerCharacter::GetSingleton()->IsOnMount()) {
-#ifdef _DEBUG
-                    LOG("Player on mount at save load");
-#endif
+                    DEBUG("Player on mount at save load");
                     Listeners::ButtonEventListener::GetSingleton()->Register();
                     Listeners::HitEventListener::GetSingleton()->Register();
                 }
@@ -107,9 +101,7 @@ extern "C" DLLEXPORT bool SKSEPlugin_Load(const LoadInterface *skse) {
                 const auto btnEventListener = Listeners::ButtonEventListener::GetSingleton();
 
                 if (btnEventListener->SinkRegistered) {
-#ifdef _DEBUG
-                    LOG("Unregistered Button listener on game preload");
-#endif
+                    DEBUG("Unregistered Button listener on game preload");
                     btnEventListener->Unregister();
                 }
 

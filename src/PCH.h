@@ -166,6 +166,7 @@ using TRACE = SKSE::log::trace;
 using INFO = SKSE::log::info;
 using WARN = SKSE::log::warn;
 using ERROR = SKSE::log::error;
+using DEBUG = SKSE::log::debug;
 
 #define FEED_COUNTER "_Horse_FeedCounter"
 #define FEED_COUNTER_INC "_Horse_IncreaseFeedCounter"

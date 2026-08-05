@@ -125,7 +125,6 @@ namespace Listeners {
                             // RE::TESLandTexture *landTex = RE::TES::GetSingleton()->GetLandTexture(pos);
                             auto pos = horse->GetPosition();
                             RE::MATERIAL_ID mat = RE::TES::GetSingleton()->GetLandMaterialType(pos);
-                            // LOG("{}", mat);
 
                             // constexpr float maxSubmerge = 0.15f;
                             // const auto wld = horse->GetParentCell();
@@ -190,8 +189,6 @@ namespace Listeners {
             // signed angle
             float dot = std::clamp(horseCam.Dot(input), -1.0f, 1.0f);
             float crossZ = horseCam.x * input.y - horseCam.y * input.x;
-
-            // LOG("{}", dot);
 
             const auto fwdVel = [horse, horseFwd] -> float {
                 RE::NiPoint3 vel;
