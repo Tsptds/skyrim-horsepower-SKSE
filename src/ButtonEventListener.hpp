@@ -42,8 +42,8 @@ namespace Listeners {
 
     RE::BSEventNotifyControl ButtonEventListener::ProcessEvent(RE::InputEvent *const *a_event, RE::BSTEventSource<RE::InputEvent *> *) {
         if (!a_event) return RE::BSEventNotifyControl::kContinue;
-        bool left{false};
-        bool right{false};
+        // bool left{false};
+        // bool right{false};
 
         const auto pl = RE::PlayerCharacter::GetSingleton();
         if (!pl->IsOnMount()) return RE::BSEventNotifyControl::kContinue;
@@ -58,14 +58,18 @@ namespace Listeners {
             const auto UE = RE::UserEvents::GetSingleton();
 
             if (ModSettings::ManualHorseAttacks.GetValue()) {
-                if (pl->AsActorState()->IsWeaponDrawn()) {
-                    constexpr auto heldThreshold = 0.1f;
-                    if (event->QUserEvent() == UE->leftAttack) {
-                        if (event->AsButtonEvent()->HeldDuration() < heldThreshold) left = true;
-                    }
-                    if (event->QUserEvent() == UE->rightAttack) {
-                        if (event->AsButtonEvent()->HeldDuration() < heldThreshold) right = true;
-                    }
+                // if (pl->AsActorState()->IsWeaponDrawn()) {
+                // constexpr auto heldThreshold = 0.1f;
+                // if (event->QUserEvent() == UE->leftAttack) {
+                //     if (event->AsButtonEvent()->HeldDuration() < heldThreshold) left = true;
+                // }
+                // if (event->QUserEvent() == UE->rightAttack) {
+                //     if (event->AsButtonEvent()->HeldDuration() < heldThreshold) right = true;
+                // }
+                // }
+                if (auto btn = event->AsButtonEvent(); event->QUserEvent() == UE->shout && btn->HeldDuration() < 0.1f) {
+                    pl->NotifyAnimationGraph("idleRearUp");
+                    horse->NotifyAnimationGraph("attackstart_attack2");
                 }
             }
 
@@ -221,17 +225,17 @@ namespace Listeners {
                 }
             }
         }
-        /* BUG: Horse hitting is not considered assault for rider, also horse can hit player */
-        if (left && right) {
-            // bool idle;
-            // horse->GetGraphVariableBool("_Horse_IsStandingIdle", idle);
-            // if (idle)
-            //     horse->NotifyAnimationGraph("attackStart_attack1");
-            // else
-            horse->NotifyAnimationGraph("attackStart_attack2");
+        // /* BUG: Horse hitting is not considered assault for rider, also horse can hit player */
+        // if (left && right) {
+        //     // bool idle;
+        //     // horse->GetGraphVariableBool("_Horse_IsStandingIdle", idle);
+        //     // if (idle)
+        //     //     horse->NotifyAnimationGraph("attackStart_attack1");
+        //     // else
+        //     horse->NotifyAnimationGraph("attackStart_attack2");
 
-            pl->NotifyAnimationGraph("standingRearup");
-        }
+        //     pl->NotifyAnimationGraph("standingRearup");
+        // }
         return RE::BSEventNotifyControl::kContinue;
     }
 
