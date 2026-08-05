@@ -78,17 +78,20 @@ namespace Listeners {
                     if (fed > 0 || !ModSettings::GrazeSystem.GetValue()) {
                         [horse] {
                             const auto bumped = horse->GetCharController()->bumpedCharCollisionObject;
-                            if (!bumped) return false;
+                            if (!bumped) return;
 
                             const auto ref = RE::TESHavokUtilities::FindCollidableRef(bumped.get()->collidable);
-                            if (!ref) return false;
+                            if (!ref) return;
 
-                            if (!ref->IsActor()) return false;
+                            if (!ref->IsActor()) return;
                             const auto act = ref->As<RE::Actor>();
-                            horse->GetActorRuntimeData().currentProcess->KnockExplosion(act, horse->GetPosition(), 2.f);
-                            RE::PlaySound("PHYBodyMediumDirtH");
 
-                            return true;
+                            if (act->GetKnockState() != RE::KNOCK_STATE_ENUM::kNormal) return;
+                            const auto curProc = horse->GetActorRuntimeData().currentProcess;
+                            if (!curProc) return;
+
+                            curProc->KnockExplosion(act, horse->GetPosition(), 3.f);
+                            RE::PlaySound("PHYBodyMediumDirtH");
                         }();
                     }
                 }
