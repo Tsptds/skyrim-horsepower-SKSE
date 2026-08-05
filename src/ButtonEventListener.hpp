@@ -86,7 +86,7 @@ namespace Listeners {
                             if (!ref->IsActor()) return;
                             const auto act = ref->As<RE::Actor>();
 
-                            if (act->GetKnockState() != RE::KNOCK_STATE_ENUM::kNormal) return;
+                            if (act->IsInRagdollState()) return;
                             const auto curProc = horse->GetActorRuntimeData().currentProcess;
                             if (!curProc) return;
 
