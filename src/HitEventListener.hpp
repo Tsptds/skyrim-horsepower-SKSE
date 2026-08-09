@@ -20,11 +20,16 @@ namespace Listeners {
 
                     if (attacker->IsHorse()) {
                         auto horse = attacker->As<RE::Actor>();
+                        auto victim = target->As<RE::Actor>();
 
                         if (RE::ActorPtr rider; horse->GetMountedBy(rider)) {
                             // RE::ConsoleLog::GetSingleton()->Print("hit by horse");
                             // const_cast<RE::TESObjectREFRPtr &>(a_event->cause) = rider;
-                            Util::StartCombat(target.get(), rider.get());
+
+                            if (victim != rider.get()) {
+                                victim->SetBeenAttacked(true);  // Not 100% sure this does what I think
+                                victim->StartCombat(rider.get());
+                            }
                         }
                     }
                     else if (target->IsHorse()) {

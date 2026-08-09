@@ -227,7 +227,6 @@ bool Hooks::NotifyGraphHandler::OnCharacter(RE::IAnimationGraphManagerHolder *a_
 
     /* Ragdoll block activation */
     if (a_eventName == "Ragdoll") {
-
         if (actor->IsDead() || actor->IsDead(false)) return _origCharacter(a_this, a_eventName);
 
         RE::ActorPtr riderPtr;

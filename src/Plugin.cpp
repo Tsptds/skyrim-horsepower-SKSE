@@ -1,4 +1,4 @@
-#include "Hooks.hpp"
+#include "AnimEventHooks.hpp"
 #include "GraphLoadHook.hpp"
 #include "ButtonEventListener.hpp"
 #include "DeathEventListener.hpp"
