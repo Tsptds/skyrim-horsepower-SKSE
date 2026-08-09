@@ -171,3 +171,29 @@ using DEBUG = SKSE::log::debug;
 #define FEED_COUNTER "_Horse_FeedCounter"
 #define FEED_COUNTER_INC "_Horse_IncreaseFeedCounter"
 #define FEED_COUNTER_DEC "_Horse_DepleteFeedCounter"
+
+namespace hooking
+{
+	using namespace SKSE::stl;
+
+	template <class T>
+	void write_thunk_call(std::uintptr_t a_src)
+	{
+		auto& trampoline = SKSE::GetTrampoline();
+		T::func = trampoline.write_call<5>(a_src, T::thunk);
+	}
+
+	template <class F, std::size_t idx, class T>
+	void write_vfunc()
+	{
+		REL::Relocation<std::uintptr_t> vtbl{ F::VTABLE[0] };
+		T::func = vtbl.write_vfunc(idx, T::thunk);
+	}
+
+	template <std::size_t idx, class T>
+	void write_vfunc(REL::VariantID id)
+	{
+		REL::Relocation<std::uintptr_t> vtbl{ id };
+		T::func = vtbl.write_vfunc(idx, T::thunk);
+	}
+}

@@ -1,5 +1,6 @@
 #include "AnimEventHooks.hpp"
 #include "GraphLoadHook.hpp"
+#include "HitHooks.hpp"
 #include "ButtonEventListener.hpp"
 #include "DeathEventListener.hpp"
 #include "Plugin.h"
@@ -77,6 +78,11 @@ extern "C" DLLEXPORT bool SKSEPlugin_Load(const LoadInterface *skse) {
                     INFO("Graph Load Hook Installed");
                 }
                 Hooks::NotifyGraphHandler::InstallGraphNotifyHook();
+
+                SKSE::AllocTrampoline(14 * 1);
+                Hooks::ProcessHitEvent::Install();
+                // Hooks::Hit_CdPointCollector::Install();
+
                 DEBUG("Installed Hooks");
                 break;
 
