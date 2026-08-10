@@ -78,14 +78,14 @@ namespace Fixes {
                 auto &JH = ctrl->jumpHeight;  // Ref
                 actor->GetGraphVariableBool("_HORSE_IncreasedJump", isStandingjump);
 
-                JH = isStandingjump ? 2.5f : (JH < 1.2f ? 1.2f : JH);  // Default 1.08585
+                JH = isStandingjump ? JH + 1.f : (JH < 1.2f ? 1.2f : JH);  // Default 1.08585
             }
             inline static void ModifyStandingJumpOnly(const RE::Actor *actor) {
                 const auto ctrl = actor->GetCharController();
                 bool isStandingjump;
                 actor->GetGraphVariableBool("_HORSE_IncreasedJump", isStandingjump);
 
-                if (isStandingjump) ctrl->jumpHeight = 2.5f;
+                if (isStandingjump) ctrl->jumpHeight = ctrl->jumpHeight + 1.f;
             }
 
         public:
