@@ -68,8 +68,19 @@ namespace Listeners {
                 // }
                 // }
                 if (auto btn = event->AsButtonEvent(); event->QUserEvent() == UE->shout && btn->HeldDuration() < 0.1f) {
-                    pl->NotifyAnimationGraph("idleRearUp");
-                    horse->NotifyAnimationGraph("attackstart_attack2");
+                    [&] -> void {
+                        float angle = horse->GetCharController()->pitchAngle;
+                        if (angle >= 0.3f) {
+                            horse->NotifyAnimationGraph("idleRearUp");
+                            pl->NotifyAnimationGraph("idleRearUp");
+                            return;
+                        }
+                        pl->NotifyAnimationGraph("idleRearUp");
+                        if (angle < -0.55f)
+                            horse->NotifyAnimationGraph("attackstart_attack1");
+                        else
+                            horse->NotifyAnimationGraph("attackstart_attack2");
+                    }();
                 }
             }
 
