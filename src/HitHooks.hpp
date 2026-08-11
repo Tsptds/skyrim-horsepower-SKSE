@@ -5,8 +5,17 @@ namespace Hooks {
                 auto aggressor = a_hitData->aggressor.get();
                 if (aggressor && aggressor->IsAMount()) {
                     RE::ActorPtr riderPtr;
-                    if (aggressor->GetMountedBy(riderPtr) && riderPtr.get() == a_target) {
-                        return;
+                    bool hasRider = aggressor->GetMountedBy(riderPtr);
+                    if (hasRider) {
+                        // Horse hit rider, stop
+                        if (riderPtr.get() == a_target) {
+                            return;
+                        }
+                        else {
+                            // Horse has rider and hit someone, swap attacker to rider so combat initiation is with rider
+                            // This also fixes not getting bounty for assult
+                            a_hitData->aggressor = riderPtr.get();
+                        }
                     }
                 }
 
