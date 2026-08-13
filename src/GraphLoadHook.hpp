@@ -1,10 +1,3 @@
-// else if (a_eventName == "canragdoll") {
-//         actor->GetRace()->data.flags.reset(RE::RACE_DATA::Flag::kNoKnockdowns);
-//     }
-//     else if (a_eventName == "noragdoll") {
-//         actor->GetRace()->data.flags.set(RE::RACE_DATA::Flag::kNoKnockdowns);
-//     }
-
 #pragma once
 
 namespace Hooks {
