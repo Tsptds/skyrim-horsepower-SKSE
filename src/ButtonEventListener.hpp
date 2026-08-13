@@ -42,8 +42,8 @@ namespace Listeners {
 
     RE::BSEventNotifyControl ButtonEventListener::ProcessEvent(RE::InputEvent *const *a_event, RE::BSTEventSource<RE::InputEvent *> *) {
         if (!a_event) return RE::BSEventNotifyControl::kContinue;
-        bool modKeyZPressed{false};
-        bool commandedAttack{false};
+        // bool left{false};
+        // bool right{false};
 
         const auto pl = RE::PlayerCharacter::GetSingleton();
         if (!pl->IsOnMount()) return RE::BSEventNotifyControl::kContinue;
@@ -57,8 +57,31 @@ namespace Listeners {
         for (auto event = *a_event; event; event = event->next) {
             const auto UE = RE::UserEvents::GetSingleton();
 
-            if (auto btn = event->AsButtonEvent(); event->QUserEvent() == UE->shout && btn->IsHeld()) {
-                modKeyZPressed = true;
+            if (ModSettings::ManualHorseAttacks.GetValue()) {
+                // if (pl->AsActorState()->IsWeaponDrawn()) {
+                // constexpr auto heldThreshold = 0.1f;
+                // if (event->QUserEvent() == UE->leftAttack) {
+                //     if (event->AsButtonEvent()->HeldDuration() < heldThreshold) left = true;
+                // }
+                // if (event->QUserEvent() == UE->rightAttack) {
+                //     if (event->AsButtonEvent()->HeldDuration() < heldThreshold) right = true;
+                // }
+                // }
+                if (auto btn = event->AsButtonEvent(); event->QUserEvent() == UE->shout && btn->HeldDuration() < 0.1f) {
+                    [&] -> void {
+                        float angle = horse->GetCharController()->pitchAngle;
+                        if (angle >= 0.3f) {
+                            horse->NotifyAnimationGraph("idleRearUp");
+                            pl->NotifyAnimationGraph("idleRearUp");
+                            return;
+                        }
+                        pl->NotifyAnimationGraph("idleRearUp");
+                        if (angle < -0.55f)
+                            horse->NotifyAnimationGraph("attackstart_attack1");
+                        else
+                            horse->NotifyAnimationGraph("attackstart_attack2");
+                    }();
+                }
             }
 
             /* Sprint Knock System */
@@ -91,12 +114,7 @@ namespace Listeners {
 
             /* Feed system */
             if (event->QUserEvent() == UE->sneak) {
-                if (ModSettings::ManualHorseAttacks.GetValue() && modKeyZPressed) {
-                    if (auto btn = event->AsButtonEvent(); btn->HeldDuration() < 0.1f) {
-                        commandedAttack = true;
-                    }
-                }
-                else if (!ModSettings::GrazeSystem.GetValue()) {
+                if (!ModSettings::GrazeSystem.GetValue()) {
                     if (ModSettings::ManualPetting.GetValue()) {
                         horse->NotifyAnimationGraph("IdlePet");
                     }
@@ -145,23 +163,6 @@ namespace Listeners {
                     }();
                     if (valid) continue;
                 }
-            }
-
-            /* Command Horse Attack */
-            if (modKeyZPressed && commandedAttack) {
-                [&] -> void {
-                    float angle = horse->GetCharController()->pitchAngle;
-                    if (angle >= 0.3f) {
-                        horse->NotifyAnimationGraph("idleRearUp");
-                        pl->NotifyAnimationGraph("idleRearUp");
-                        return;
-                    }
-                    pl->NotifyAnimationGraph("idleRearUp");
-                    if (angle < -0.55f)
-                        horse->NotifyAnimationGraph("attackstart_attack1");
-                    else
-                        horse->NotifyAnimationGraph("attackstart_attack2");
-                }();
             }
 
             /* Canned 180 Turn logic, relative to camera, horse facing direction and input direction */
