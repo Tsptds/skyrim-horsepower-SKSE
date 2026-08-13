@@ -69,6 +69,12 @@ namespace Listeners {
                 // }
                 if (auto btn = event->AsButtonEvent(); event->QUserEvent() == UE->shout && btn->HeldDuration() < 0.1f) {
                     [&] -> void {
+                        RE::UI *ui = RE::UI::GetSingleton();
+                        if (ui) {
+                            if (ui->GameIsPaused()) return;
+                            if (ui->IsItemMenuOpen()) return;
+                            if (ui->IsApplicationMenuOpen()) return;
+                        }
                         float angle = horse->GetCharController()->pitchAngle;
                         if (angle >= 0.3f) {
                             horse->NotifyAnimationGraph("idleRearUp");
