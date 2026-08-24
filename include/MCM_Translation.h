@@ -7,7 +7,7 @@ namespace this_plugin {
     class TranslationKey {
         public:
             static constexpr const char *Key = KeyStr;
-            std::string CachedValue;
+            std::string CachedValue = KeyStr;
     };
 
     inline constexpr char s_UpStage1[] = "$UpStage1";
