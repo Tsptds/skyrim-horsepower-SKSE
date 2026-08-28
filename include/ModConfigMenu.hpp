@@ -12,14 +12,19 @@ namespace ModConfigMenu {
 
 /**/ #define CV(x) CS->x.CachedValue.c_str()  // cached value
 
+    void ShowTooltip(const char *text) {
+        if (ImGuiMCP::IsItemHovered()) {
+            ImGuiMCP::SetTooltip("%s", text);
+        }
+    }
     void Settings() {
         auto AddSetting = [&](const char *label, const char *desc, bool &value, std::function<void()> onUpdate = nullptr) {
             ImGuiMCP::BeginGroup();
-            if (ImGuiMCPComponents::ToggleButton(label, &value)) {
+            if (ImGuiMCP::Checkbox(label, &value)) {
                 if (onUpdate) onUpdate();
                 ms::g_settingStore.GetSingleton()->Save();
             }
-            ImGuiMCP::Text(desc);
+            ShowTooltip(desc);
             ImGuiMCP::EndGroup();
 
             ImGuiMCP::Spacing();
