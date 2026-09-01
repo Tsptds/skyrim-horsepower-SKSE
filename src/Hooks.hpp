@@ -68,7 +68,7 @@ namespace Hooks {
                         actor->GetLinearVelocity(vel);
                         vel.z = 0;
 
-                        const auto fwdVel = vel * fwdDir;
+                        const auto fwdVel = vel.Length();
                         // LOG("speed: {}", fwdVel);
 
                         if (fwdVel > 0 && fwdVel < 50) {

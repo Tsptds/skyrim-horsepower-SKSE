@@ -125,12 +125,14 @@ namespace Listeners {
 
             // LOG("{}", dot);
 
-            const auto &fwdVel = [&horse, &horseFwd] -> float {
+            const auto fwdVel = [horse, horseFwd] -> float {
                 RE::NiPoint3 vel;
                 horse->GetLinearVelocity(vel);
                 vel.z = 0;
+                vel.x *= horseFwd.x;
+                vel.y *= horseFwd.y;
 
-                return vel * horseFwd;
+                return vel.Length();
             };
 
             /* Still pressing the button and should cancel early */
