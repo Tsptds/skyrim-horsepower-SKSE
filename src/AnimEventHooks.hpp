@@ -287,6 +287,23 @@ bool Hooks::NotifyGraphHandler::OnPlayer(RE::IAnimationGraphManagerHolder *a_thi
     }
 
     const auto pl = RE::PlayerCharacter::GetSingleton();
+    if (a_eventName == "SprintStop") {
+        auto pc = RE::PlayerControls::GetSingleton();
+        if (pc) {
+            auto inp = pc->data.moveInputVec;
+            Util::Normalize2D(pc->data.moveInputVec);
+
+            if (inp.Length() <= 0.1f) {
+                RE::ActorPtr mnt;
+                if (pl->GetMount(mnt)) {
+                    mnt->NotifyAnimationGraph("BrakeStart");
+                }
+            }
+        }
+
+        return _origPlayer(a_this, a_eventName);
+    }
+
     if (pl->IsOnMount()) {
         if (Util::IsAllowedToReplaceEvent(pl)) {
             Fixes::Attacks::ApplyFix(a_eventName);
