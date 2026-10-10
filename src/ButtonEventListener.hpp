@@ -49,10 +49,10 @@ namespace Listeners {
         if (!pl->IsOnMount()) return RE::BSEventNotifyControl::kContinue;
 
         RE::ActorPtr mnt;
-        if (!pl->GetMount(mnt)) RE::BSEventNotifyControl::kContinue;
+        if (!pl->GetMount(mnt)) return RE::BSEventNotifyControl::kContinue;
         const auto horse = mnt.get();
         const auto ctrl = horse->GetCharController();
-        if (!ctrl) RE::BSEventNotifyControl::kContinue;
+        if (!ctrl) return RE::BSEventNotifyControl::kContinue;
 
         for (auto event = *a_event; event; event = event->next) {
             const auto UE = RE::UserEvents::GetSingleton();
