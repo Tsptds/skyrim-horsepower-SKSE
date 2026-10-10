@@ -37,6 +37,8 @@ namespace this_plugin {
     inline constexpr char s_MCMHitTolerationDesc[] = "$MCM_HitToleration_Desc";
     inline constexpr char s_MCMAllowRagdollLabel[] = "$MCM_AllowRagdoll_Label";
     inline constexpr char s_MCMAllowRagdollDesc[] = "$MCM_AllowRagdoll_Desc";
+    inline constexpr char s_MCMSprintStopLabel[] = "$MCM_SprintStop_Label";
+    inline constexpr char s_MCMSprintStopDesc[] = "$MCM_SprintStop_Desc";
 
     class CachedStrings {
         public:
@@ -72,6 +74,8 @@ namespace this_plugin {
             TranslationKey<s_MCMHitTolerationDesc> mcmHitTolerationDesc;
             TranslationKey<s_MCMAllowRagdollLabel> mcmAllowRagdollLabel;
             TranslationKey<s_MCMAllowRagdollDesc> mcmAllowRagdollDesc;
+            TranslationKey<s_MCMSprintStopLabel> mcmSprintStopLabel;
+            TranslationKey<s_MCMSprintStopDesc> mcmSprintStopDesc;
 
             inline static void Initialize() {
                 auto Fetch = [](auto &target) { translation::Translate(target.Key, target.CachedValue); };
@@ -103,6 +107,8 @@ namespace this_plugin {
                 Fetch(cs->mcmHitTolerationDesc);
                 Fetch(cs->mcmAllowRagdollLabel);
                 Fetch(cs->mcmAllowRagdollDesc);
+                Fetch(cs->mcmSprintStopLabel);
+                Fetch(cs->mcmSprintStopDesc);
             }
 
         private:

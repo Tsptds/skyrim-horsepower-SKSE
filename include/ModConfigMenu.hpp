@@ -76,6 +76,9 @@ namespace ModConfigMenu {
         AddSetting(CV(cached::mcmAllowRagdollLabel), CV(cached::mcmAllowRagdollDesc), allowRagdoll,
                    [&] { ms::RemoveNoKnockdownFlag.SetValue(allowRagdoll); });
 
+        bool sprintStop = ms::SprintStop.GetValue();
+        AddSetting(CV(cached::mcmSprintStopLabel), CV(cached::mcmSprintStopDesc), sprintStop, [&] { ms::SprintStop.SetValue(sprintStop); });
+
 #undef CV
     }
     void Experimental() {

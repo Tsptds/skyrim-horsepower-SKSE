@@ -287,7 +287,7 @@ bool Hooks::NotifyGraphHandler::OnPlayer(RE::IAnimationGraphManagerHolder *a_thi
     }
 
     const auto pl = RE::PlayerCharacter::GetSingleton();
-    if (a_eventName == "SprintStop") {
+    if (a_eventName == "SprintStop" && ModSettings::SprintStop.GetValue()) {
         bool res = _origPlayer(a_this, a_eventName);
         if (res) {
             RE::ActorPtr mnt;
@@ -304,7 +304,7 @@ bool Hooks::NotifyGraphHandler::OnPlayer(RE::IAnimationGraphManagerHolder *a_thi
             }
         }
 
-        return _origPlayer(a_this, a_eventName);
+        return res;
     }
 
     if (pl->IsOnMount()) {
