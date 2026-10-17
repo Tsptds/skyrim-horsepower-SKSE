@@ -54,6 +54,17 @@ namespace Listeners {
         const auto ctrl = horse->GetCharController();
         if (!ctrl) return RE::BSEventNotifyControl::kContinue;
 
+        // Slide on slopes
+        if (!horse->IsInMidair() && ctrl->pitchAngle >= 0.6f) {
+            horse->NotifyAnimationGraph("hpmhr_slidefwd");
+        }
+        else if (!horse->IsInMidair() && ctrl->pitchAngle <= -0.6f) {
+            horse->NotifyAnimationGraph("hpmhr_slidebwd");
+        }
+        else if (bool sld; horse->GetGraphVariableBool("HPMHR_IsSliding", sld) && sld) {
+            horse->NotifyAnimationGraph("HPMHR_SlideStop");
+        }
+
         for (auto event = *a_event; event; event = event->next) {
             const auto UE = RE::UserEvents::GetSingleton();
 
