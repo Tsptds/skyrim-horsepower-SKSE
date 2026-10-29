@@ -79,7 +79,11 @@ namespace ModConfigMenu {
         bool sprintStop = ms::SprintStop.GetValue();
         AddSetting(CV(cached::mcmSprintStopLabel), CV(cached::mcmSprintStopDesc), sprintStop, [&] { ms::SprintStop.SetValue(sprintStop); });
 
-#undef CV
+        bool slopeSliding = ms::SlopeSlide.GetValue();
+        AddSetting(CV(cached::mcmSlopeSlideLabel), CV(cached::mcmSlopeSlideDesc), slopeSliding,
+                   [&] { ms::SlopeSlide.SetValue(slopeSliding); });
+
+/**/ #undef CV
     }
     void Experimental() {
         auto AddSetting = [&](const char *label, const char *desc, bool &value, std::function<void()> onUpdate = nullptr) {

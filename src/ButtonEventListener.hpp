@@ -55,14 +55,31 @@ namespace Listeners {
         if (!ctrl) return RE::BSEventNotifyControl::kContinue;
 
         // Slide on slopes
-        if (!horse->IsInMidair() && ctrl->pitchAngle >= 0.6f) {
-            horse->NotifyAnimationGraph("hpmhr_slidefwd");
-        }
-        else if (!horse->IsInMidair() && ctrl->pitchAngle <= -0.6f) {
-            horse->NotifyAnimationGraph("hpmhr_slidebwd");
-        }
-        else if (bool sld; horse->GetGraphVariableBool("HPMHR_IsSliding", sld) && sld) {
-            horse->NotifyAnimationGraph("HPMHR_SlideStop");
+        if (ModSettings::SlopeSlide.GetValue()) {
+            const float pitch = ctrl->pitchAngle;
+
+            if (bool sld; horse->GetGraphVariableBool("HPMHR_IsSliding", sld) && sld) {
+                if (ModSettings::RemoveNoKnockdownFlag.GetValue() && !horse->IsInRagdollState() && (pitch > 1 || pitch < -1)) {
+                    auto hrsP = horse->GetActorRuntimeData().currentProcess;
+                    if (hrsP) hrsP->KnockExplosion(horse, horse->GetPosition(), 0.f);
+                }
+                else if ((pitch <= 0.7 && pitch >= -0.7)) {
+                    horse->NotifyAnimationGraph("HPMHR_SlideStop");
+                }
+            }
+            else if (!horse->IsInMidair() && !horse->AsActorState()->IsSwimming()) {
+                // if (!horse->IsInRagdollState() && (pitch > 1 || pitch < -1)) {
+                //     auto curP = horse->GetActorRuntimeData().currentProcess;
+                //     if (curP) curP->KnockExplosion(horse, horse->GetPosition(), 0.f);
+                // }
+                // else
+                if (pitch > 0.7) {
+                    horse->NotifyAnimationGraph("hpmhr_slidefwd");
+                }
+                else if (pitch < -0.7) {
+                    horse->NotifyAnimationGraph("hpmhr_slidebwd");
+                }
+            }
         }
 
         for (auto event = *a_event; event; event = event->next) {
