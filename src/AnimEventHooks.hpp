@@ -298,7 +298,9 @@ bool Hooks::NotifyGraphHandler::OnPlayer(RE::IAnimationGraphManagerHolder *a_thi
                     Util::Normalize2D(pc->data.moveInputVec);
 
                     if (inp.Length() <= 0.1f) {
-                        mnt->NotifyAnimationGraph("BrakeStart");
+                        if (mnt->NotifyAnimationGraph("BrakeStart")) {
+                            pl->NotifyAnimationGraph("idlerearup");
+                        }
                     }
                 }
             }
