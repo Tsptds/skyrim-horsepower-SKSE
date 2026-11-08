@@ -258,6 +258,14 @@ bool Hooks::NotifyGraphHandler::OnCharacter(RE::IAnimationGraphManagerHolder *a_
                 return false;
         }
     }
+    else if (a_eventName == "Horse_BackKick") {
+        bool res = _origCharacter(a_this, a_eventName);
+        if (res) {
+            Util::FillKickAttackData(actor);
+        }
+
+        return res;
+    }
 
     return _origCharacter(a_this, a_eventName);
 }

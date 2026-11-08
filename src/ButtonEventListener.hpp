@@ -95,7 +95,7 @@ namespace Listeners {
                 //     if (event->AsButtonEvent()->HeldDuration() < heldThreshold) right = true;
                 // }
                 // }
-                if (auto btn = event->AsButtonEvent(); event->QUserEvent() == UE->shout && btn->HeldDuration() < 0.1f) {
+                if (auto btn = event->AsButtonEvent(); event->QUserEvent() == UE->shout) {
                     [&] -> void {
                         RE::UI *ui = RE::UI::GetSingleton();
                         if (ui) {
@@ -103,17 +103,29 @@ namespace Listeners {
                             if (ui->IsItemMenuOpen()) return;
                             if (ui->IsApplicationMenuOpen()) return;
                         }
+
+                        float dur = btn->HeldDuration();
                         float angle = horse->GetCharController()->pitchAngle;
-                        if (angle >= 0.3f) {
-                            horse->NotifyAnimationGraph("idleRearUp");
-                            pl->NotifyAnimationGraph("idleRearUp");
-                            return;
+
+                        if (dur > 0.2f && dur <= 0.4f) {
+                            if (angle >= -0.55f) {
+                                horse->NotifyAnimationGraph("Horse_BackKick");
+                            }
                         }
-                        pl->NotifyAnimationGraph("idleRearUp");
-                        if (angle < -0.55f)
-                            horse->NotifyAnimationGraph("attackstart_attack1");
-                        else
-                            horse->NotifyAnimationGraph("attackstart_attack2");
+                        else if (btn->IsUp() && dur < 0.2f) {
+                            if (angle >= 0.3f) {
+                                horse->NotifyAnimationGraph("idleRearUp");
+                                pl->NotifyAnimationGraph("idleRearUp");
+                                return;
+                            }
+                            pl->NotifyAnimationGraph("idleRearUp");
+                            if (angle < -0.55f) {
+                                horse->NotifyAnimationGraph("attackstart_attack1");
+                            }
+                            else {
+                                horse->NotifyAnimationGraph("attackstart_attack2");
+                            }
+                        }
                     }();
                 }
             }

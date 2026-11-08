@@ -57,4 +57,57 @@ namespace Util {
         return true;
     }
 
+    RE::BGSAttackData *AddAttack(RE::TESRace *a_race, std::string_view a_templateEvent, std::string_view a_newEvent) {
+        if (!a_race || !a_race->attackDataMap) {
+            return nullptr;
+        }
+
+        auto &map = a_race->attackDataMap->attackDataMap;
+
+        const RE::BSFixedString newKey(a_newEvent);
+        const RE::BSFixedString templateKey(a_templateEvent);
+
+        if (auto existing = map.find(newKey); existing != map.end()) {
+            return existing->second.get();
+        }
+
+        auto src = map.find(templateKey);
+        if (src == map.end() || !src->second) {
+            return nullptr;
+        }
+
+        auto *data = new RE::BGSAttackData(*src->second);
+        data->event = newKey;
+
+        data->data.damageMult = 1.0f;
+        data->data.knockDown = 5.0f;
+        data->data.strikeAngle = 50.f;   // Sweep cone rad
+        data->data.attackAngle = 180.f;  // Cone angle
+
+        map.insert({newKey, RE::NiPointer<RE::BGSAttackData>(data)});
+        return data;
+    }
+
+    void FillKickAttackData(RE::Actor *a_actor) {
+        if (!a_actor) {
+            return;
+        }
+
+        auto *proc = a_actor->GetActorRuntimeData().currentProcess;
+        auto *high = proc ? proc->high : nullptr;
+        auto *race = a_actor->GetRace();
+        if (!high || !race || !race->attackDataMap) {
+            return;
+        }
+
+        auto &map = race->attackDataMap->attackDataMap;
+        auto it = map.find(RE::BSFixedString("Horse_BackKick"));
+        if (it == map.end() || !it->second) {
+            WARN("Horse_BackKick not in attack map of race {}", race->GetFormEditorID());
+            return;
+        }
+
+        high->attackData = decltype(high->attackData)(it->second.get());
+    }
+
 }  // namespace Util

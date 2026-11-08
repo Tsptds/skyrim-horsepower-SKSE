@@ -19,9 +19,18 @@ namespace Hooks {
 
                             /* Scale Damage */
                             a_hitData->totalDamage += rider->CalcUnarmedDamage();
+
+                            auto ad = a_hitData->attackData;
+                            if (ad && ad->event == "Horse_BackKick") {
+                                aggressor.get()->GetActorRuntimeData().currentProcess->KnockExplosion(a_hitData->target.get().get(),
+                                                                                                      aggressor.get()->GetPosition(), 2.f);
+                            }
                         }
                     }
                 }
+                // auto *proc = aggressor->GetActorRuntimeData().currentProcess;
+                // auto *ad = (proc && proc->high) ? proc->high->attackData.get() : nullptr;
+                // INFO("HitFrame attackData: {} mult={}", ad ? ad->event.c_str() : "null", ad ? ad->data.damageMult : -1.0f);
 
                 func(a_target, a_hitData);
             }

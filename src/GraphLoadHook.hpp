@@ -49,7 +49,7 @@ namespace Hooks {
             using flag = RE::RACE_DATA::Flag;
             bool enabled = ModSettings::RemoveNoKnockdownFlag.GetValue();
             auto race = actor->GetRace();
-            if (race)
+            if (race) {
                 if (enabled) {
                     if (race->data.flags.any(flag::kNoKnockdowns)) {
                         INFO("Removing NoKnockdown flag of: {}", race->GetName());
@@ -62,6 +62,9 @@ namespace Hooks {
                         race->data.flags.set(RE::RACE_DATA::Flag::kNoKnockdowns);
                     }
                 }
+
+                Util::AddAttack(race, "attackStart_Attack2", "Horse_BackKick");
+            }
         }
     }
 }  // namespace Hooks
