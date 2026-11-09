@@ -118,6 +118,12 @@ namespace Hooks {
                     }
                 }
 
+                /* Prevent horse hitting it's rider, angle always ~ 0. Non additive twist */
+                else if (ev == "Horse_KickStart") {
+                    // Roughly 60 times the pitch
+                    actor->SetGraphVariableFloat("HPMHR_AttackTwistAngle", actor->GetCharController()->pitchAngle * 60.f);
+                }
+
                 else if (ev == FEED_COUNTER_DEC) {
                     int32_t ctr;
                     RE::BSFixedString var{FEED_COUNTER};
