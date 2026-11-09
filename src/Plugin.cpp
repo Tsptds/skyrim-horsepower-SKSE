@@ -111,11 +111,11 @@ extern "C" DLLEXPORT bool SKSEPlugin_Load(const LoadInterface *skse) {
                     btnEventListener->Unregister();
                 }
 
-                const auto hitEventListener = Listeners::HitEventListener::GetSingleton();
+                // const auto hitEventListener = Listeners::HitEventListener::GetSingleton();
 
-                if (hitEventListener->sinkRegistered) {
-                    hitEventListener->Unregister();
-                }
+                // if (hitEventListener->sinkRegistered) {
+                //     hitEventListener->Unregister();
+                // }
 
                 break;
         }

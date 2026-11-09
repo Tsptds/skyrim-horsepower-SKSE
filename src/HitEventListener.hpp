@@ -6,7 +6,7 @@ namespace Listeners {
         public:
             static HitEventListener *GetSingleton();
             void Register();
-            void Unregister();
+            // void Unregister();
 
             bool sinkRegistered = false;
 
@@ -43,9 +43,9 @@ namespace Listeners {
         sinkRegistered = true;
     }
 
-    void HitEventListener::Unregister() {
-        RE::ScriptEventSourceHolder::GetSingleton()->RemoveEventSink<RE::TESHitEvent>(HitEventListener::GetSingleton());
-        sinkRegistered = false;
-    }
+    // void HitEventListener::Unregister() {
+    //     RE::ScriptEventSourceHolder::GetSingleton()->RemoveEventSink<RE::TESHitEvent>(HitEventListener::GetSingleton());
+    //     sinkRegistered = false;
+    // }
 
 }  // namespace Listeners

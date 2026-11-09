@@ -309,7 +309,7 @@ bool Hooks::NotifyGraphHandler::OnPlayer(RE::IAnimationGraphManagerHolder *a_thi
         bool res = _origPlayer(a_this, a_eventName);
         if (res) {
             Listeners::ButtonEventListener::GetSingleton()->Unregister();
-            Listeners::HitEventListener::GetSingleton()->Unregister();
+            // Listeners::HitEventListener::GetSingleton()->Unregister();
             DEBUG("HORSE EXIT {}", Listeners::ButtonEventListener::GetSingleton()->SinkRegistered);
         }
 

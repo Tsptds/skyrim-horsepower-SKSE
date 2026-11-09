@@ -3,7 +3,7 @@ namespace Hooks {
             static void thunk(RE::Actor *a_target, RE::HitData *a_hitData) {
                 // INFO("{}", a_target->GetName());
                 auto aggressor = a_hitData->aggressor.get();
-                if (aggressor && aggressor->IsAMount()) {
+                if (aggressor && aggressor->IsHorse()) {
                     RE::ActorPtr riderPtr;
                     bool hasRider = aggressor->GetMountedBy(riderPtr);
                     if (hasRider) {
@@ -19,13 +19,12 @@ namespace Hooks {
 
                             /* Scale Damage */
                             a_hitData->totalDamage += rider->CalcUnarmedDamage();
-
-                            auto ad = a_hitData->attackData;
-                            if (ad && ad->event == "Horse_BackKick") {
-                                aggressor.get()->GetActorRuntimeData().currentProcess->KnockExplosion(a_hitData->target.get().get(),
-                                                                                                      aggressor.get()->GetPosition(), 2.f);
-                            }
                         }
+                    }
+                    auto ad = a_hitData->attackData;
+                    if (ad && ad->event == "Horse_BackKick") {
+                        aggressor.get()->GetActorRuntimeData().currentProcess->KnockExplosion(a_hitData->target.get().get(),
+                                                                                              aggressor.get()->GetPosition(), 2.f);
                     }
                 }
                 // auto *proc = aggressor->GetActorRuntimeData().currentProcess;
