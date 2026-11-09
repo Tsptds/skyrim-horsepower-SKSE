@@ -22,11 +22,9 @@ namespace Listeners {
                         if (!ModSettings::HorseHitToleration.GetValue()) return RE::BSEventNotifyControl::kContinue;
                         auto horse = target->As<RE::Actor>();
 
-                        if (RE::ActorPtr rider; horse->GetMountedBy(rider)) {
-                            bool canHit;
-                            if (horse->GetGraphVariableBool("_Horse_CanHitCourage", canHit) && canHit) {
-                                horse->NotifyAnimationGraph("_HitCourage");
-                            }
+                        bool canHit;
+                        if (horse->GetGraphVariableBool("_Horse_CanHitCourage", canHit) && canHit) {
+                            horse->NotifyAnimationGraph("_HitCourage");
                         }
                     }
                 }
