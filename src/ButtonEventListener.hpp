@@ -108,9 +108,7 @@ namespace Listeners {
                         float angle = horse->GetCharController()->pitchAngle;
 
                         if (dur > 0.2f && dur <= 0.4f) {
-                            if (angle >= -0.55f) {
-                                horse->NotifyAnimationGraph("Horse_BackKick");
-                            }
+                            horse->NotifyAnimationGraph("Horse_BackKick");
                         }
                         else if (btn->IsUp() && dur < 0.2f) {
                             if (angle >= 0.3f) {

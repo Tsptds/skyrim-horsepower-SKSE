@@ -100,6 +100,22 @@ namespace Hooks {
                         // RE::Actor *rider = riderPtr.get();
                         // actor->GetActorRuntimeData().currentProcess->KnockExplosion(rider, rider->GetPosition(), 0.f);
                     }
+                    else {
+                        // Do a back kick here instead lol
+                        actor->NotifyAnimationGraph("Horse_BackKick");
+                    }
+                }
+
+                /* Prevent horse hitting it's rider, angle always ~ 0. Non additive twist */
+                else if (ev == "Horse_KickStart") {
+                    // Roughly 60 times the pitch
+                    auto ctrl = actor->GetCharController();
+                    if (ctrl->pitchAngle <= 0) {
+                        actor->SetGraphVariableFloat("HPMHR_AttackTwistAngle", ctrl->pitchAngle * 60.f);
+                    }
+                    else {
+                        actor->SetGraphVariableFloat("HPMHR_AttackTwistAngle", 0);
+                    }
                 }
 
                 else if (ev == FEED_COUNTER_DEC) {
