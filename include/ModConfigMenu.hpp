@@ -2,55 +2,140 @@
 #include "SKSEMenuFramework.h"
 #include "ModSettings.h"
 #include "Fixes.hpp"
+#include "MCM_Translation.h"
 
 namespace ModConfigMenu {
 
     namespace ms = ModSettings;
+    using cached = this_plugin::CachedStrings;
+    auto CS = cached::GetSingleton();
 
-    void __stdcall Settings() {
-        auto AddSetting = [&](const char *label, const char *desc, bool &value, std::function<void()> onUpdate = nullptr) {
-            ImGuiMCP::BeginGroup();
-            if (ImGuiMCPComponents::ToggleButton(label, &value)) {
-                if (onUpdate) onUpdate();
-                ms::g_settingStore.GetSingleton()->Save();
-            }
-            ImGuiMCP::Text(desc);
-            ImGuiMCP::EndGroup();
+/**/ #define CV(x) CS->x.CachedValue.c_str()  // cached value
 
-            ImGuiMCP::Spacing();
-            // Pushing a visible color ensures the separator shows up regardless of theme
-            ImGuiMCP::PushStyleColor(ImGuiMCP::ImGuiCol_Separator, ImGuiMCP::ImVec4(0.5f, 0.5f, 0.5f, 1.0f));
-            ImGuiMCP::Separator();
-            ImGuiMCP::PopStyleColor();
-            ImGuiMCP::Spacing();
-        };
-
-        bool sprint = ms::SprintInterruption.GetValue();
-        AddSetting("Sprint Interruption", "Getting too slow with your horse will cause it to rear-up", sprint,
-                   [&] { ms::SprintInterruption.SetValue(sprint); });
-
-        bool jump = ms::DisableModMovingJumpHeight.GetValue();
-        AddSetting("Disable Minimum Moving Jump Height Clamp", "Disable the increased minimum jump height when moving", jump, [&] {
-            ms::DisableModMovingJumpHeight.SetValue(jump);
-            Fixes::Compatibility::SetModJump();
-        });
-
-        bool swap = ms::SwapHands.GetValue();
-        AddSetting("Swap Horseback Attack Inputs", "Left click to attack left, right click to attack right", swap, [&] {
-            ms::SwapHands.SetValue(swap);
-            Fixes::Attacks::SetHandSwapping();
-        });
-
-        bool petting = ms::ManualPetting.GetValue();
-        AddSetting("Manual Horseback Petting", "Pet the horse with sneak key on horseback", petting,
-                   [&] { ms::ManualPetting.SetValue(petting); });
+    void ShowTooltip(const char *text) {
+        if (ImGuiMCP::IsItemHovered()) {
+            ImGuiMCP::SetTooltip("%s", text);
+        }
     }
-    void __stdcall Experimental() {
+    void Settings() {
+        auto Divider = [] {
+            ImGuiMCP::Spacing();
+            // Pushing a visible color ensures the separator shows up regardless of theme
+            ImGuiMCP::PushStyleColor(ImGuiMCP::ImGuiCol_Separator, ImGuiMCP::ImVec4(0.5f, 0.5f, 0.5f, 1.0f));
+            ImGuiMCP::Separator();
+            ImGuiMCP::PopStyleColor();
+            ImGuiMCP::Spacing();
+        };
+
+        auto AddToggle = [&](const char *label, const char *desc, auto &setting, std::function<void(bool)> onUpdate = nullptr) {
+            bool value = setting.GetValue();
+            ImGuiMCP::BeginGroup();
+            if (ImGuiMCP::Checkbox(label, &value)) {
+                setting.SetValue(value);
+                if (onUpdate) onUpdate(value);
+                ms::g_settingStore.GetSingleton()->Save();
+            }
+            if (desc) ShowTooltip(desc);
+            ImGuiMCP::EndGroup();
+            Divider();
+        };
+
+        auto AddButton = [&](const char *label, const char *desc, std::function<void()> onClick, float width = 0.0f,
+                             bool saveAfter = true) {
+            ImGuiMCP::BeginGroup();
+            if (ImGuiMCP::Button(label, ImGuiMCP::ImVec2(width, 0.0f))) {
+                if (onClick) onClick();
+                if (saveAfter) ms::g_settingStore.GetSingleton()->Save();
+            }
+            if (desc) ShowTooltip(desc);
+            ImGuiMCP::EndGroup();
+            Divider();
+        };
+
+        auto AddMTSlider = [&](const char *label, const char *desc, auto &setting, MT_Ptr::Type type, float min, float max) {
+            float value = setting.GetValue();
+            ImGuiMCP::BeginGroup();
+            ImGuiMCP::SetNextItemWidth(250.0f);
+            if (ImGuiMCP::SliderFloat(label, &value, min, max, "%.2f", 0)) {
+                if (HavokUtil::SetBoundValue(value, type)) {
+                    setting.SetValue(value);
+                }
+            }
+            // Save once when the drag ends instead of every frame
+            if (ImGuiMCP::IsItemDeactivatedAfterEdit()) {
+                ms::g_settingStore.GetSingleton()->Save();
+            }
+            if (desc) ShowTooltip(desc);
+            ImGuiMCP::EndGroup();
+            Divider();
+        };
+
+        if (ImGuiMCP::BeginTabBar("##SettingsTabs", 0)) {
+            if (ImGuiMCP::BeginTabItem(CV(cached::mcmTabMovement), nullptr, 0)) {
+                AddToggle(CV(cached::mcmSprintInterruptLabel), CV(cached::mcmSprintInterruptDesc), ms::SprintInterruption);
+                AddToggle(CV(cached::mcmSprintStopLabel), CV(cached::mcmSprintStopDesc), ms::SprintStop);
+                AddToggle(CV(cached::mcmSlopeSlideLabel), CV(cached::mcmSlopeSlideDesc), ms::SlopeSlide);
+                AddToggle(CV(cached::mcmMinJumpClampLabel), CV(cached::mcmMinJumpClampDesc), ms::DisableModMovingJumpHeight,
+                          [](bool) { Fixes::Compatibility::SetModJump(); });
+                ImGuiMCP::EndTabItem();
+            }
+
+            if (ImGuiMCP::BeginTabItem(CV(cached::mcmTabCombat), nullptr, 0)) {
+                AddToggle(CV(cached::mcmHorseAttackLabel), CV(cached::mcmHorseAttackDesc), ms::ManualHorseAttacks);
+                AddToggle(CV(cached::mcmSwapInputLabel), CV(cached::mcmSwapInputDesc), ms::SwapHands,
+                          [](bool) { Fixes::Attacks::SetHandSwapping(); });
+                AddToggle(CV(cached::mcmSprintKnockLabel), CV(cached::mcmSprintKnockDesc), ms::SprintJumpKnock);
+                AddToggle(CV(cached::mcmHitTolerationLabel), CV(cached::mcmHitTolerationDesc), ms::HorseHitToleration);
+                AddToggle(CV(cached::mcmAllowRagdollLabel), CV(cached::mcmAllowRagdollDesc), ms::RemoveNoKnockdownFlag);
+                ImGuiMCP::EndTabItem();
+            }
+
+            if (ImGuiMCP::BeginTabItem(CV(cached::mcmTabInteract), nullptr, 0)) {
+                AddToggle(CV(cached::mcmPettingLabel), CV(cached::mcmPettingDesc), ms::ManualPetting);
+                AddToggle(CV(cached::mcmGrazeLabel), CV(cached::mcmGrazeDesc), ms::GrazeSystem,
+                          [](bool on) { Util::SyncGlobalGrazeValue(on); });
+                ImGuiMCP::EndTabItem();
+            }
+
+            if (ImGuiMCP::BeginTabItem(CV(cached::mcmTabAnim), nullptr, 0)) {
+                AddMTSlider(CV(cached::mcmWalkSpeedLabel), CV(cached::mcmWalkSpeedDesc), ModSettings::_MT_WalkForward, MT_Ptr::Type::kWalk,
+                            10.0f, 210.f);
+                AddMTSlider(CV(cached::mcmRunSpeedLabel), CV(cached::mcmRunSpeedDesc), ModSettings::_MT_RunForward, MT_Ptr::Type::kRun,
+                            310.f, ModSettings::_MT_Sprint.GetValue() - 50.f);
+                AddMTSlider(CV(cached::mcmSprintSpeedLabel), CV(cached::mcmSprintSpeedDesc), ModSettings::_MT_Sprint, MT_Ptr::Type::kSprint,
+                            ModSettings::_MT_RunForward.GetValue() + 100.f, 2000.f);
+
+                AddButton(
+                    CV(cached::mcmResetSpeedMatchLabel), nullptr,
+                    [] {
+                        const float kWalkDefault = 125.112000f;
+                        const float kRunDefault = 500.f;
+                        const float kSprintDefault = 1000.f;
+
+                        if (HavokUtil::SetBoundValue(kWalkDefault, MT_Ptr::Type::kWalk)) {
+                            ModSettings::_MT_WalkForward.SetValue(kWalkDefault);
+                        }
+                        if (HavokUtil::SetBoundValue(kRunDefault, MT_Ptr::Type::kRun)) {
+                            ModSettings::_MT_RunForward.SetValue(kRunDefault);
+                        }
+                        if (HavokUtil::SetBoundValue(kSprintDefault, MT_Ptr::Type::kSprint)) {
+                            ModSettings::_MT_Sprint.SetValue(kSprintDefault);
+                        }
+                    },
+                    160.0f);
+
+                ImGuiMCP::EndTabItem();
+            }
+
+            ImGuiMCP::EndTabBar();
+        }
+    }
+    void Experimental() {
         auto AddSetting = [&](const char *label, const char *desc, bool &value, std::function<void()> onUpdate = nullptr) {
             ImGuiMCP::BeginGroup();
             if (ImGuiMCPComponents::ToggleButton(label, &value)) {
                 if (onUpdate) onUpdate();
-                ms::g_settingStore.GetSingleton()->Save();
+                ModSettings::g_settingStore.GetSingleton()->Save();
             }
             ImGuiMCP::Text(desc);
             ImGuiMCP::EndGroup();
@@ -62,16 +147,24 @@ namespace ModConfigMenu {
             ImGuiMCP::PopStyleColor();
             ImGuiMCP::Spacing();
         };
-        bool horseAttacks = ms::ManualHorseAttacks.GetValue();
-        AddSetting("Horse Attack", "Make horse attack by pressing both attack buttons", horseAttacks,
-                   [&] { ms::ManualHorseAttacks.SetValue(horseAttacks); });
+    }
+    void Debug() {
+        if (ImGuiMCP::Button("Test Feed Message")) {
+            std::string msg{"$Horsepower_FeedTutorial"};
+            SKSE::Translation::Translate(msg, msg);
+            RE::DebugMessageBox(msg.c_str());
+        }
     }
 
     void SetupMenu() {
         if (!SKSEMenuFramework::IsInstalled()) return;
+        this_plugin::CachedStrings::Initialize();
 
         SKSEMenuFramework::SetSection("HorsePower");
-        SKSEMenuFramework::AddSectionItem("Settings", Settings);
-        SKSEMenuFramework::AddSectionItem("Experimental", Experimental);
+        SKSEMenuFramework::AddSectionItem(CV(cached::mcmSectSettings), Settings);
+        // SKSEMenuFramework::AddSectionItem("Experimental", Experimental);
+        SKSEMenuFramework::AddSectionItem(CV(cached::mcmSectDebug), Debug);
     }
+
+/**/ #undef CV
 }  // namespace ModConfigMenu

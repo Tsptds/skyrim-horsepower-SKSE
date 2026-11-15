@@ -12,25 +12,19 @@ namespace Listeners {
             RE::BSEventNotifyControl ProcessEvent(const RE::TESDeathEvent *a_event, RE::BSTEventSource<RE::TESDeathEvent> *) override {
                 if (!a_event || !a_event->actorDying) return RE::BSEventNotifyControl::kContinue;
 
-                const auto &ref = a_event->actorDying;
+                const auto ref = a_event->actorDying;
                 if (!ref->IsActor()) return RE::BSEventNotifyControl::kContinue;
 
                 if (!ref->IsHorse()) return RE::BSEventNotifyControl::kContinue;
 
                 if (ref->IsDead() || ref->IsDead(false)) {
-#ifdef _DEBUG
-                    LOG("dead: {}", ref->GetDisplayFullName());
-#endif
+                    DEBUG("dead: {}", ref->GetDisplayFullName());
                     return RE::BSEventNotifyControl::kContinue;  // It seems to fire both on dying and on dead
                 }
-#ifdef _DEBUG
-                LOG("dying: {}", ref->GetDisplayFullName());
-#endif
+                DEBUG("dying: {}", ref->GetDisplayFullName());
 
                 if (ref->IsActivationBlocked()) {
-#ifdef _DEBUG
-                    LOG("Unblocking {}", ref->GetDisplayFullName());
-#endif
+                    DEBUG("Unblocking {}", ref->GetDisplayFullName());
                     ref->SetActivationBlocked(false);
                 }
 

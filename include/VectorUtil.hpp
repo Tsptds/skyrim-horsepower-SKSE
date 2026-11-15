@@ -17,4 +17,12 @@ namespace Util {
             v.y /= len;
         }
     }
+
+    inline static void Normalize2D(RE::NiPoint2 &v) {
+        float len = std::sqrt(v.x * v.x + v.y * v.y);
+        if (len > 1e-4f) {
+            v.x /= len;
+            v.y /= len;
+        }
+    }
 }  // namespace Util

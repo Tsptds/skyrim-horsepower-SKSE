@@ -64,7 +64,6 @@ namespace Fixes {
             inline static void SetHandSwapping() {
                 bool swappingHands = ModSettings::SwapHands.GetValue();
                 ApplyFix = swappingHands ? Attacks::FixAttackAnnotationsAndHands : Attacks::FixLeftAttackAnnotationsOnly;
-                // LOG("Left Hand Attack Event Fix Installed, Attack Inputs Swapped: {}", swappingHands);
             }
     };
 
@@ -73,22 +72,20 @@ namespace Fixes {
             using jumpHeightMod_t = void (*)(const RE::Actor *);
 
             inline static void ModifyStandingAndMovingJump(const RE::Actor *actor) {
-                const auto &ctrl = actor->GetCharController();
-                auto &JH = ctrl->jumpHeight;
-                // LOG("{}", JH);
+                const auto ctrl = actor->GetCharController();
                 // Luckily event fires after jump height is set, so I can overwrite it here, it's set for every jump individually
                 bool isStandingjump;
+                auto &JH = ctrl->jumpHeight;  // Ref
                 actor->GetGraphVariableBool("_HORSE_IncreasedJump", isStandingjump);
 
-                JH = isStandingjump ? 2.5f : (JH < 1.2f ? 1.2f : JH);  // Default 1.08585
+                JH = isStandingjump ? JH + 1.f : (JH < 1.2f ? 1.2f : JH);  // Default 1.08585
             }
             inline static void ModifyStandingJumpOnly(const RE::Actor *actor) {
-                const auto &ctrl = actor->GetCharController();
-                auto &JH = ctrl->jumpHeight;
+                const auto ctrl = actor->GetCharController();
                 bool isStandingjump;
                 actor->GetGraphVariableBool("_HORSE_IncreasedJump", isStandingjump);
 
-                if (isStandingjump) JH = 2.5f;
+                if (isStandingjump) ctrl->jumpHeight = ctrl->jumpHeight + 1.f;
             }
 
         public:
@@ -97,7 +94,6 @@ namespace Fixes {
             inline static void SetModJump() {
                 bool standingOnly = ModSettings::DisableModMovingJumpHeight.GetValue();
                 ModJump = standingOnly ? ModifyStandingJumpOnly : ModifyStandingAndMovingJump;
-                // LOG("Jump Height Mod Installed, Modify Standing Only: {}", standingOnly);
             }
     };
 

@@ -2,6 +2,7 @@
 #include "ModSettings.h"
 #include "VectorUtil.hpp"
 #include "HitEventListener.hpp"
+#include "MCM_Translation.h"
 
 namespace Listeners {
 
@@ -41,46 +42,171 @@ namespace Listeners {
 
     RE::BSEventNotifyControl ButtonEventListener::ProcessEvent(RE::InputEvent *const *a_event, RE::BSTEventSource<RE::InputEvent *> *) {
         if (!a_event) return RE::BSEventNotifyControl::kContinue;
-        bool left{false};
-        bool right{false};
+        // bool left{false};
+        // bool right{false};
 
-        const auto &pl = RE::PlayerCharacter::GetSingleton();
+        const auto pl = RE::PlayerCharacter::GetSingleton();
         if (!pl->IsOnMount()) return RE::BSEventNotifyControl::kContinue;
 
         RE::ActorPtr mnt;
-        if (!pl->GetMount(mnt)) RE::BSEventNotifyControl::kContinue;
-        const auto &horse = mnt.get();
-        const auto &ctrl = horse->GetCharController();
-        if (!ctrl) RE::BSEventNotifyControl::kContinue;
+        if (!pl->GetMount(mnt)) return RE::BSEventNotifyControl::kContinue;
+        const auto horse = mnt.get();
+        const auto ctrl = horse->GetCharController();
+        if (!ctrl) return RE::BSEventNotifyControl::kContinue;
+
+        // Slide on slopes
+        if (ModSettings::SlopeSlide.GetValue()) {
+            const float pitch = ctrl->pitchAngle;
+
+            if (bool sld; horse->GetGraphVariableBool("HPMHR_IsSliding", sld) && sld) {
+                if (ModSettings::RemoveNoKnockdownFlag.GetValue() && !horse->IsInRagdollState() && (pitch > 1 || pitch < -1)) {
+                    auto hrsP = horse->GetActorRuntimeData().currentProcess;
+                    if (hrsP) hrsP->KnockExplosion(horse, horse->GetPosition(), 0.f);
+                }
+                else if ((pitch <= 0.7 && pitch >= -0.7)) {
+                    horse->NotifyAnimationGraph("HPMHR_SlideStop");
+                }
+            }
+            else if (!horse->IsInMidair() && !horse->AsActorState()->IsSwimming()) {
+                // if (!horse->IsInRagdollState() && (pitch > 1 || pitch < -1)) {
+                //     auto curP = horse->GetActorRuntimeData().currentProcess;
+                //     if (curP) curP->KnockExplosion(horse, horse->GetPosition(), 0.f);
+                // }
+                // else
+                if (pitch > 0.7) {
+                    horse->NotifyAnimationGraph("hpmhr_slidefwd");
+                }
+                else if (pitch < -0.7) {
+                    horse->NotifyAnimationGraph("hpmhr_slidebwd");
+                }
+            }
+        }
 
         for (auto event = *a_event; event; event = event->next) {
-            const auto &UE = RE::UserEvents::GetSingleton();
+            const auto UE = RE::UserEvents::GetSingleton();
 
             if (ModSettings::ManualHorseAttacks.GetValue()) {
-                if (pl->AsActorState()->IsWeaponDrawn()) {
-                    constexpr auto heldThreshold = 0.1f;
-                    if (event->QUserEvent() == UE->leftAttack) {
-                        if (event->AsButtonEvent()->HeldDuration() < heldThreshold) left = true;
-                    }
-                    if (event->QUserEvent() == UE->rightAttack) {
-                        if (event->AsButtonEvent()->HeldDuration() < heldThreshold) right = true;
+                // if (pl->AsActorState()->IsWeaponDrawn()) {
+                // constexpr auto heldThreshold = 0.1f;
+                // if (event->QUserEvent() == UE->leftAttack) {
+                //     if (event->AsButtonEvent()->HeldDuration() < heldThreshold) left = true;
+                // }
+                // if (event->QUserEvent() == UE->rightAttack) {
+                //     if (event->AsButtonEvent()->HeldDuration() < heldThreshold) right = true;
+                // }
+                // }
+                if (auto btn = event->AsButtonEvent(); event->QUserEvent() == UE->shout) {
+                    [&] -> void {
+                        RE::UI *ui = RE::UI::GetSingleton();
+                        if (ui) {
+                            if (ui->GameIsPaused()) return;
+                            if (ui->IsItemMenuOpen()) return;
+                            if (ui->IsApplicationMenuOpen()) return;
+                        }
+
+                        float dur = btn->HeldDuration();
+                        float angle = horse->GetCharController()->pitchAngle;
+
+                        if (dur > 0.2f && dur <= 0.4f) {
+                            horse->NotifyAnimationGraph("Horse_BackKick");
+                        }
+                        else if (btn->IsUp() && dur < 0.2f) {
+                            if (angle >= 0.3f) {
+                                horse->NotifyAnimationGraph("idleRearUp");
+                                pl->NotifyAnimationGraph("idleRearUp");
+                                return;
+                            }
+                            pl->NotifyAnimationGraph("idleRearUp");
+                            if (angle < -0.55f) {
+                                horse->NotifyAnimationGraph("attackstart_attack1");
+                            }
+                            else {
+                                horse->NotifyAnimationGraph("attackstart_attack2");
+                            }
+                        }
+                    }();
+                }
+            }
+
+            /* Sprint Knock System */
+            if (ModSettings::SprintJumpKnock.GetValue()) {
+                if (auto as = horse->AsActorState(); as->IsSprinting() && horse->IsInJumpState()) {
+                    int fed{0};
+                    horse->GetGraphVariableInt(FEED_COUNTER, fed);
+
+                    if (fed > 0 || !ModSettings::GrazeSystem.GetValue()) {
+                        [horse] {
+                            const auto bumped = horse->GetCharController()->bumpedCharCollisionObject;
+                            if (!bumped) return;
+
+                            const auto ref = RE::TESHavokUtilities::FindCollidableRef(bumped.get()->collidable);
+                            if (!ref) return;
+
+                            if (!ref->IsActor()) return;
+                            const auto act = ref->As<RE::Actor>();
+
+                            if (act->IsInRagdollState()) return;
+                            const auto curProc = horse->GetActorRuntimeData().currentProcess;
+                            if (!curProc) return;
+
+                            curProc->KnockExplosion(act, horse->GetPosition(), 3.f);
+                            RE::PlaySound("PHYBodyMediumDirtH");
+                        }();
                     }
                 }
             }
 
-            /* Manual Pet Logic */
-            if (ModSettings::ManualPetting.GetValue()) {
-                bool idle = [&event, &horse, &UE] {
-                    if (event->QUserEvent() == UE->sneak) {
+            /* Feed system */
+            if (event->QUserEvent() == UE->sneak) {
+                if (!ModSettings::GrazeSystem.GetValue()) {
+                    if (ModSettings::ManualPetting.GetValue()) {
+                        horse->NotifyAnimationGraph("IdlePet");
+                    }
+                }
+                else {
+                    bool valid = [pl, event, horse, ctrl, UE] {
+                        if (pl->AsActorState()->IsWeaponDrawn()) return false;
+
                         bool idle;
                         horse->GetGraphVariableBool("_Horse_IsStandingIdle", idle);
                         if (idle) {
-                            return horse->NotifyAnimationGraph("IdlePet");
+                            if (ModSettings::ManualPetting.GetValue()) {
+                                int32_t hunger;
+                                horse->GetGraphVariableInt(FEED_COUNTER, hunger);
+
+                                if (hunger > 4) {
+                                    const auto msg = this_plugin::CachedStrings::GetSingleton()->upStage5.CachedValue;
+                                    RE::SendHUDMessage::ShowHUDMessage(fmt::format("{} {}", horse->GetName(), msg).c_str());
+                                    return horse->NotifyAnimationGraph("IdlePet");
+                                }
+                            }
+
+                            // RE::TESLandTexture *landTex = RE::TES::GetSingleton()->GetLandTexture(pos);
+                            auto pos = horse->GetPosition();
+                            RE::MATERIAL_ID mat = RE::TES::GetSingleton()->GetLandMaterialType(pos);
+
+                            // constexpr float maxSubmerge = 0.15f;
+                            // const auto wld = horse->GetParentCell();
+                            // const float submerged = wld ? horse->GetSubmergedLevel(horse->GetPositionZ(), wld) : 0;
+                            // if (landTex && !landTex->textureGrassList.empty()) {
+                            switch (mat) {
+                                case RE::MATERIAL_ID::kGrass:
+                                case RE::MATERIAL_ID::kDirt:
+
+                                    // Feed
+                                    return horse->NotifyAnimationGraph("idleGrazing");
+
+                                default:
+                                    if (ModSettings::ManualPetting.GetValue()) {
+                                        // Pet
+                                        return horse->NotifyAnimationGraph("IdlePet");
+                                    }
+                            }
                         }
-                    }
-                    return false;
-                }();
-                if (idle) continue;
+                        return false;
+                    }();
+                    if (valid) continue;
+                }
             }
 
             /* Canned 180 Turn logic, relative to camera, horse facing direction and input direction */
@@ -89,11 +215,11 @@ namespace Listeners {
             bool turning;
             horse->GetGraphVariableBool("_Horse_IsCannedTurn", turning);
 
-            const auto &horseFwd = Util::Vec4_To_Vec3(ctrl->forwardVec * -1);  // This shit is inverted for some reason
+            const auto horseFwd = Util::Vec4_To_Vec3(ctrl->forwardVec * -1);  // This shit is inverted for some reason
 
             auto horseCam = [horseFwd] -> RE::NiPoint3 {
-                const auto &cam = RE::PlayerCamera::GetSingleton();
-                const auto &camNode = cam->cameraRoot;
+                const auto cam = RE::PlayerCamera::GetSingleton();
+                const auto camNode = cam->cameraRoot;
                 RE::NiPoint3 camForward = camNode->world.rotate * RE::NiPoint3{0, 1, 0};
                 RE::NiPoint3 camRight = camNode->world.rotate * RE::NiPoint3{1, 0, 0};
 
@@ -123,8 +249,6 @@ namespace Listeners {
             float dot = std::clamp(horseCam.Dot(input), -1.0f, 1.0f);
             float crossZ = horseCam.x * input.y - horseCam.y * input.x;
 
-            // LOG("{}", dot);
-
             const auto fwdVel = [horse, horseFwd] -> float {
                 RE::NiPoint3 vel;
                 horse->GetLinearVelocity(vel);
@@ -140,14 +264,15 @@ namespace Listeners {
                 horse->NotifyAnimationGraph("_CannedEarlyExit");  // Early exit
             }
 
+            /* DOT: ~120 = -0.5 / ~75 = 0.2588 / ~60 = 0.5 / ~90 = 0 */
             else if (fwdVel() < 200.f) {
-                if (dot <= -0.5) {  // ~120°
+                if (dot <= -0.5) {
                     if (crossZ > 0.0f)
                         horse->NotifyAnimationGraph("cannedTurnLeft180");
                     else
                         horse->NotifyAnimationGraph("cannedTurnRight180");
                 }
-                else if (dot <= 0.2588f) {  // ~75 = 0.2588 / ~60° = 0.5 / ~90° = 0
+                else if (dot <= 0.2588f) {
                     if (crossZ > 0.0f)
                         horse->NotifyAnimationGraph("cannedTurnLeft90");
                     else
@@ -155,17 +280,17 @@ namespace Listeners {
                 }
             }
         }
-        /* BUG: Horse hitting is not considered assault for rider, also horse can hit player */
-        if (left && right) {
-            bool idle;
-            horse->GetGraphVariableBool("_Horse_IsStandingIdle", idle);
-            if (idle)
-                horse->NotifyAnimationGraph("attackStart_attack1");
-            else
-                horse->NotifyAnimationGraph("attackStart_attack2");
+        // /* BUG: Horse hitting is not considered assault for rider, also horse can hit player */
+        // if (left && right) {
+        //     // bool idle;
+        //     // horse->GetGraphVariableBool("_Horse_IsStandingIdle", idle);
+        //     // if (idle)
+        //     //     horse->NotifyAnimationGraph("attackStart_attack1");
+        //     // else
+        //     horse->NotifyAnimationGraph("attackStart_attack2");
 
-            pl->NotifyAnimationGraph("standingRearup");
-        }
+        //     pl->NotifyAnimationGraph("standingRearup");
+        // }
         return RE::BSEventNotifyControl::kContinue;
     }
 

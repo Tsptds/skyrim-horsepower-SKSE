@@ -6,24 +6,26 @@ namespace Listeners {
         public:
             static HitEventListener *GetSingleton();
             void Register();
-            void Unregister();
+            // void Unregister();
 
             bool sinkRegistered = false;
 
             RE::BSEventNotifyControl ProcessEvent(const RE::TESHitEvent *a_event, RE::BSTEventSource<RE::TESHitEvent> *) override {
                 if (!a_event) return RE::BSEventNotifyControl::kContinue;
 
-                const auto &attacker = a_event->cause;
-                const auto &target = a_event->target;
+                const auto attacker = a_event->cause;
+                const auto target = a_event->target;
                 if (attacker && target) {
-                    if (!attacker->IsActor() || !target->IsActor() || !attacker->IsHorse()) return RE::BSEventNotifyControl::kContinue;
+                    if (!attacker->IsActor() || !target->IsActor()) return RE::BSEventNotifyControl::kContinue;
 
-                    auto horse = attacker->As<RE::Actor>();
+                    if (target->IsHorse()) {
+                        if (!ModSettings::HorseHitToleration.GetValue()) return RE::BSEventNotifyControl::kContinue;
+                        auto horse = target->As<RE::Actor>();
 
-                    if (RE::ActorPtr rider; horse->GetMountedBy(rider)) {
-                        // RE::ConsoleLog::GetSingleton()->Print("hit by horse");
-                        // const_cast<RE::TESObjectREFRPtr &>(a_event->cause) = rider;
-                        Util::StartCombat(target.get(), rider.get());
+                        bool canHit;
+                        if (horse->GetGraphVariableBool("_Horse_CanHitCourage", canHit) && canHit) {
+                            horse->NotifyAnimationGraph("_HitCourage");
+                        }
                     }
                 }
 
@@ -41,9 +43,9 @@ namespace Listeners {
         sinkRegistered = true;
     }
 
-    void HitEventListener::Unregister() {
-        RE::ScriptEventSourceHolder::GetSingleton()->RemoveEventSink<RE::TESHitEvent>(HitEventListener::GetSingleton());
-        sinkRegistered = false;
-    }
+    // void HitEventListener::Unregister() {
+    //     RE::ScriptEventSourceHolder::GetSingleton()->RemoveEventSink<RE::TESHitEvent>(HitEventListener::GetSingleton());
+    //     sinkRegistered = false;
+    // }
 
 }  // namespace Listeners

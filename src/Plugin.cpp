@@ -1,4 +1,6 @@
-#include "Hooks.hpp"
+#include "AnimEventHooks.hpp"
+#include "GraphLoadHook.hpp"
+#include "HitHooks.hpp"
 #include "ButtonEventListener.hpp"
 #include "DeathEventListener.hpp"
 #include "Plugin.h"
@@ -65,45 +67,55 @@ using namespace plugin;
 extern "C" DLLEXPORT bool SKSEPlugin_Load(const LoadInterface *skse) {
     initializeLogging();
 
-    LOG("'{} {} By {}' / Skyrim '{}'", Plugin::Name, Plugin::VersionString, Plugin::Author, REL::Module::get().version().string());
+    INFO("'{} {} By {}' / Skyrim '{}'", Plugin::Name, Plugin::VersionString, Plugin::Author, REL::Module::get().version().string());
     Init(skse, false);
 
     SKSE::GetMessagingInterface()->RegisterListener([](SKSE::MessagingInterface::Message *msg) {
         switch (msg->type) {
             case SKSE::MessagingInterface::kPostLoad:
                 Hooks::AnimationEventHook::InstallAnimEventHook();
+                if (Hooks::GraphLoadHook::InstallGraphManagerHooks()) {
+                    INFO("Graph Load Hook Installed");
+                }
                 Hooks::NotifyGraphHandler::InstallGraphNotifyHook();
-#ifdef _DEBUG
-                LOG("Installed Hooks");
-#endif
+
+                SKSE::AllocTrampoline(14 * 1);
+                Hooks::ProcessHitEvent::Install();
+                // Hooks::Hit_CdPointCollector::Install();
+
+                DEBUG("Installed Hooks");
                 break;
 
             case SKSE::MessagingInterface::kDataLoaded:
+                ModConfigMenu::SetupMenu();
                 Listeners::DeathEventListener::GetSingleton()->Register();
-#ifdef _DEBUG
-                LOG("Death Event Listener Registered");
-#endif
+                DEBUG("Death Event Listener Registered");
                 break;
 
             case SKSE::MessagingInterface::kPostLoadGame:
+                Util::SyncGlobalGrazeValue(ModSettings::GrazeSystem.GetValue());
+
                 if (RE::PlayerCharacter::GetSingleton()->IsOnMount()) {
-#ifdef _DEBUG
-                    LOG("Player on mount at save load");
-#endif
+                    DEBUG("Player on mount at save load");
                     Listeners::ButtonEventListener::GetSingleton()->Register();
+                    Listeners::HitEventListener::GetSingleton()->Register();
                 }
 
                 break;
 
             case SKSE::MessagingInterface::kPreLoadGame:
-                const auto &btnEventListener = Listeners::ButtonEventListener::GetSingleton();
+                const auto btnEventListener = Listeners::ButtonEventListener::GetSingleton();
 
                 if (btnEventListener->SinkRegistered) {
-#ifdef _DEBUG
-                    LOG("Unregistered Button listener on game preload");
-#endif
+                    DEBUG("Unregistered Button listener on game preload");
                     btnEventListener->Unregister();
                 }
+
+                // const auto hitEventListener = Listeners::HitEventListener::GetSingleton();
+
+                // if (hitEventListener->sinkRegistered) {
+                //     hitEventListener->Unregister();
+                // }
 
                 break;
         }
@@ -112,8 +124,7 @@ extern "C" DLLEXPORT bool SKSEPlugin_Load(const LoadInterface *skse) {
     ModSettings::ReadINI();
     Fixes::Attacks::SetHandSwapping();
     Fixes::Compatibility::SetModJump();
-    ModConfigMenu::SetupMenu();
 
-    LOG("|>_{} loaded_<|", Plugin::Name);
+    INFO("|>_{} loaded_<|", Plugin::Name);
     return true;
 }
