@@ -17,8 +17,10 @@ namespace this_plugin {
     inline constexpr char s_DownStage2[] = "$DownStage2";
     inline constexpr char s_DownStage1[] = "$DownStage1";
     inline constexpr char s_DownStage0[] = "$DownStage0";
+
     inline constexpr char s_HorsepowerFeedTutorial[] = "$Horsepower_FeedTutorial";
     inline constexpr char s_HorsepowerFeedTutorialHeader[] = "$Horsepower_FeedTutorialHeader";
+
     inline constexpr char s_MCMSprintInterruptLabel[] = "$MCM_SprintInterrupt_Label";
     inline constexpr char s_MCMSprintInterruptDesc[] = "$MCM_SprintInterrupt_Desc";
     inline constexpr char s_MCMMinJumpClampLabel[] = "$MCM_MinJumpClamp_Label";
@@ -39,8 +41,26 @@ namespace this_plugin {
     inline constexpr char s_MCMAllowRagdollDesc[] = "$MCM_AllowRagdoll_Desc";
     inline constexpr char s_MCMSprintStopLabel[] = "$MCM_SprintStop_Label";
     inline constexpr char s_MCMSprintStopDesc[] = "$MCM_SprintStop_Desc";
-    inline constexpr char s_MCMSlopeSlideDesc[] = "$MCM_SlopeSlide_Desc";
     inline constexpr char s_MCMSlopeSlideLabel[] = "$MCM_SlopeSlide_Label";
+    inline constexpr char s_MCMSlopeSlideDesc[] = "$MCM_SlopeSlide_Desc";
+
+    inline constexpr char s_MCMWalkSpeedLabel[] = "$MCM_WalkSpeed_Label";
+    inline constexpr char s_MCMWalkSpeedDesc[] = "$MCM_WalkSpeed_Desc";
+    inline constexpr char s_MCMRunSpeedLabel[] = "$MCM_RunSpeed_Label";
+    inline constexpr char s_MCMRunSpeedDesc[] = "$MCM_RunSpeed_Desc";
+    inline constexpr char s_MCMSprintSpeedLabel[] = "$MCM_SprintSpeed_Label";
+    inline constexpr char s_MCMSprintSpeedDesc[] = "$MCM_SprintSpeed_Desc";
+    inline constexpr char s_MCMResetSpeedMatchLabel[] = "$MCM_ResetSpeedMatch_Label";
+    
+
+    inline constexpr char s_MCMSect_Settings[] = "$MCM_Sect_Settings";
+    inline constexpr char s_MCMSect_Debug[] = "$MCM_Sect_Debug";
+    
+    inline constexpr char s_MCMTab_Movement[] = "$MCM_Tab_Movement";
+    inline constexpr char s_MCMTab_Combat[] = "$MCM_Tab_Combat";
+    inline constexpr char s_MCMTab_Interact[] = "$MCM_Tab_Interact";
+    inline constexpr char s_MCMTab_Anim[] = "$MCM_Tab_Anim";
+
 
     class CachedStrings {
         public:
@@ -56,8 +76,10 @@ namespace this_plugin {
             TranslationKey<s_DownStage2> downStage2;
             TranslationKey<s_DownStage1> downStage1;
             TranslationKey<s_DownStage0> downStage0;
+
             TranslationKey<s_HorsepowerFeedTutorial> horsepowerFeedTutorial;
             TranslationKey<s_HorsepowerFeedTutorialHeader> horsepowerFeedTutorialHeader;
+
             TranslationKey<s_MCMSprintInterruptLabel> mcmSprintInterruptLabel;
             TranslationKey<s_MCMSprintInterruptDesc> mcmSprintInterruptDesc;
             TranslationKey<s_MCMMinJumpClampLabel> mcmMinJumpClampLabel;
@@ -80,6 +102,23 @@ namespace this_plugin {
             TranslationKey<s_MCMSprintStopDesc> mcmSprintStopDesc;
             TranslationKey<s_MCMSlopeSlideLabel> mcmSlopeSlideLabel;
             TranslationKey<s_MCMSlopeSlideDesc> mcmSlopeSlideDesc;
+
+            TranslationKey<s_MCMWalkSpeedLabel> mcmWalkSpeedLabel;
+            TranslationKey<s_MCMWalkSpeedDesc> mcmWalkSpeedDesc;
+            TranslationKey<s_MCMRunSpeedLabel> mcmRunSpeedLabel;
+            TranslationKey<s_MCMRunSpeedDesc> mcmRunSpeedDesc;
+            TranslationKey<s_MCMSprintSpeedLabel> mcmSprintSpeedLabel;
+            TranslationKey<s_MCMSprintSpeedDesc> mcmSprintSpeedDesc;
+            TranslationKey<s_MCMResetSpeedMatchLabel> mcmResetSpeedMatchLabel;
+
+            TranslationKey<s_MCMSect_Settings> mcmSectSettings;
+            TranslationKey<s_MCMSect_Debug> mcmSectDebug;
+            
+            TranslationKey<s_MCMTab_Movement> mcmTabMovement;
+            TranslationKey<s_MCMTab_Combat> mcmTabCombat;
+            TranslationKey<s_MCMTab_Interact> mcmTabInteract;
+            TranslationKey<s_MCMTab_Anim> mcmTabAnim;
+
 
             inline static void Initialize() {
                 auto Fetch = [](auto &target) { translation::Translate(target.Key, target.CachedValue); };
@@ -115,6 +154,22 @@ namespace this_plugin {
                 Fetch(cs->mcmSprintStopDesc);
                 Fetch(cs->mcmSlopeSlideLabel);
                 Fetch(cs->mcmSlopeSlideDesc);
+                Fetch(cs->mcmWalkSpeedLabel);
+                Fetch(cs->mcmWalkSpeedDesc);
+                Fetch(cs->mcmRunSpeedLabel);
+                Fetch(cs->mcmRunSpeedDesc);
+                Fetch(cs->mcmSprintSpeedLabel);
+                Fetch(cs->mcmSprintSpeedDesc);
+                Fetch(cs->mcmResetSpeedMatchLabel);
+
+                Fetch(cs->mcmSectSettings);
+                Fetch(cs->mcmSectDebug);
+                
+                Fetch(cs->mcmTabMovement);
+                Fetch(cs->mcmTabCombat);
+                Fetch(cs->mcmTabInteract);
+                Fetch(cs->mcmTabAnim);
+                
             }
 
         private:

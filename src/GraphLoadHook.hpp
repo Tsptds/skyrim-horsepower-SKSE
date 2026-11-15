@@ -67,7 +67,7 @@ namespace Hooks {
                 Util::AddAttack(race, "attackStart_Attack2", "Horse_BackKick");
             }
 
-            // Not Assigned yet, pass in the mngr here
+            // mngr pointer isn't assigned to actor yet, pass in the mngr here
             HavokUtil::BindChannels(actor, a_animGraphMgr);
         }
     }

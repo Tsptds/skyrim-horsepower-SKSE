@@ -45,9 +45,9 @@ namespace HavokUtil {
 
         const auto boundChannels = mgr->boundChannels;
 
-        RE::BSFixedString walk{"HPMHR_MT_WalkForward"};
-        RE::BSFixedString run{"HPMHR_MT_RunForward"};
-        RE::BSFixedString sprint{"HPMHR_MT_Sprint"};
+        const RE::BSFixedString walk{"HPMHR_MT_WalkForward"};
+        const RE::BSFixedString run{"HPMHR_MT_RunForward"};
+        const RE::BSFixedString sprint{"HPMHR_MT_Sprint"};
 
         bool has_walk{false};
         bool has_run{false};

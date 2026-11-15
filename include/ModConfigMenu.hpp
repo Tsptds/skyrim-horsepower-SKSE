@@ -35,7 +35,7 @@ namespace ModConfigMenu {
                 if (onUpdate) onUpdate(value);
                 ms::g_settingStore.GetSingleton()->Save();
             }
-            ShowTooltip(desc);
+            if (desc) ShowTooltip(desc);
             ImGuiMCP::EndGroup();
             Divider();
         };
@@ -47,7 +47,7 @@ namespace ModConfigMenu {
                 if (onClick) onClick();
                 if (saveAfter) ms::g_settingStore.GetSingleton()->Save();
             }
-            ShowTooltip(desc);
+            if (desc) ShowTooltip(desc);
             ImGuiMCP::EndGroup();
             Divider();
         };
@@ -57,20 +57,21 @@ namespace ModConfigMenu {
             ImGuiMCP::BeginGroup();
             ImGuiMCP::SetNextItemWidth(250.0f);
             if (ImGuiMCP::SliderFloat(label, &value, min, max, "%.2f", 0)) {
-                setting.SetValue(value);                       // used when a channel gets created later
-                (void) HavokUtil::SetBoundValue(value, type);  // live update if the channel already exists
+                if (HavokUtil::SetBoundValue(value, type)) {
+                    setting.SetValue(value);
+                }
             }
             // Save once when the drag ends instead of every frame
             if (ImGuiMCP::IsItemDeactivatedAfterEdit()) {
                 ms::g_settingStore.GetSingleton()->Save();
             }
-            ShowTooltip(desc);
+            if (desc) ShowTooltip(desc);
             ImGuiMCP::EndGroup();
             Divider();
         };
 
         if (ImGuiMCP::BeginTabBar("##SettingsTabs", 0)) {
-            if (ImGuiMCP::BeginTabItem("Movement", nullptr, 0)) {
+            if (ImGuiMCP::BeginTabItem(CV(cached::mcmTabMovement), nullptr, 0)) {
                 AddToggle(CV(cached::mcmSprintInterruptLabel), CV(cached::mcmSprintInterruptDesc), ms::SprintInterruption);
                 AddToggle(CV(cached::mcmSprintStopLabel), CV(cached::mcmSprintStopDesc), ms::SprintStop);
                 AddToggle(CV(cached::mcmSlopeSlideLabel), CV(cached::mcmSlopeSlideDesc), ms::SlopeSlide);
@@ -79,7 +80,7 @@ namespace ModConfigMenu {
                 ImGuiMCP::EndTabItem();
             }
 
-            if (ImGuiMCP::BeginTabItem("Combat", nullptr, 0)) {
+            if (ImGuiMCP::BeginTabItem(CV(cached::mcmTabCombat), nullptr, 0)) {
                 AddToggle(CV(cached::mcmHorseAttackLabel), CV(cached::mcmHorseAttackDesc), ms::ManualHorseAttacks);
                 AddToggle(CV(cached::mcmSwapInputLabel), CV(cached::mcmSwapInputDesc), ms::SwapHands,
                           [](bool) { Fixes::Attacks::SetHandSwapping(); });
@@ -89,35 +90,37 @@ namespace ModConfigMenu {
                 ImGuiMCP::EndTabItem();
             }
 
-            if (ImGuiMCP::BeginTabItem("Horse Care", nullptr, 0)) {
+            if (ImGuiMCP::BeginTabItem(CV(cached::mcmTabInteract), nullptr, 0)) {
                 AddToggle(CV(cached::mcmPettingLabel), CV(cached::mcmPettingDesc), ms::ManualPetting);
                 AddToggle(CV(cached::mcmGrazeLabel), CV(cached::mcmGrazeDesc), ms::GrazeSystem,
                           [](bool on) { Util::SyncGlobalGrazeValue(on); });
                 ImGuiMCP::EndTabItem();
             }
 
-            if (ImGuiMCP::BeginTabItem("Speeds", nullptr, 0)) {
-                AddMTSlider("Walk Forward", "Forward motion value for walking.", ModSettings::_MT_WalkForward, MT_Ptr::Type::kWalk, 10.0f,
-                            210.f);
-                AddMTSlider("Run Forward", "Forward motion value for running.", ModSettings::_MT_RunForward, MT_Ptr::Type::kRun, 310.f,
-                            ModSettings::_MT_Sprint.GetValue() - 50.f);
-                AddMTSlider("Sprint", "Forward motion value for sprinting.", ModSettings::_MT_Sprint, MT_Ptr::Type::kSprint,
+            if (ImGuiMCP::BeginTabItem(CV(cached::mcmTabAnim), nullptr, 0)) {
+                AddMTSlider(CV(cached::mcmWalkSpeedLabel), CV(cached::mcmWalkSpeedDesc), ModSettings::_MT_WalkForward, MT_Ptr::Type::kWalk,
+                            10.0f, 210.f);
+                AddMTSlider(CV(cached::mcmRunSpeedLabel), CV(cached::mcmRunSpeedDesc), ModSettings::_MT_RunForward, MT_Ptr::Type::kRun,
+                            310.f, ModSettings::_MT_Sprint.GetValue() - 50.f);
+                AddMTSlider(CV(cached::mcmSprintSpeedLabel), CV(cached::mcmSprintSpeedDesc), ModSettings::_MT_Sprint, MT_Ptr::Type::kSprint,
                             ModSettings::_MT_RunForward.GetValue() + 100.f, 2000.f);
 
                 AddButton(
-                    "Reset Speeds", "Restore walk, run and sprint values to their defaults.",
+                    CV(cached::mcmResetSpeedMatchLabel), nullptr,
                     [] {
                         const float kWalkDefault = ModSettings::_MT_WalkForward.GetValueDefault();
                         const float kRunDefault = ModSettings::_MT_RunForward.GetValueDefault();
                         const float kSprintDefault = ModSettings::_MT_Sprint.GetValueDefault();
 
-                        ModSettings::_MT_WalkForward.SetValue(kWalkDefault);
-                        ModSettings::_MT_RunForward.SetValue(kRunDefault);
-                        ModSettings::_MT_Sprint.SetValue(kSprintDefault);
-
-                        (void) HavokUtil::SetBoundValue(kWalkDefault, MT_Ptr::Type::kWalk);
-                        (void) HavokUtil::SetBoundValue(kRunDefault, MT_Ptr::Type::kRun);
-                        (void) HavokUtil::SetBoundValue(kSprintDefault, MT_Ptr::Type::kSprint);
+                        if (HavokUtil::SetBoundValue(kWalkDefault, MT_Ptr::Type::kWalk)) {
+                            ModSettings::_MT_WalkForward.SetValue(kWalkDefault);
+                        }
+                        if (HavokUtil::SetBoundValue(kRunDefault, MT_Ptr::Type::kRun)) {
+                            ModSettings::_MT_RunForward.SetValue(kRunDefault);
+                        }
+                        if (HavokUtil::SetBoundValue(kSprintDefault, MT_Ptr::Type::kSprint)) {
+                            ModSettings::_MT_Sprint.SetValue(kSprintDefault);
+                        }
                     },
                     160.0f);
 
@@ -126,8 +129,6 @@ namespace ModConfigMenu {
 
             ImGuiMCP::EndTabBar();
         }
-
-/**/ #undef CV
     }
     void Experimental() {
         auto AddSetting = [&](const char *label, const char *desc, bool &value, std::function<void()> onUpdate = nullptr) {
@@ -160,8 +161,10 @@ namespace ModConfigMenu {
         this_plugin::CachedStrings::Initialize();
 
         SKSEMenuFramework::SetSection("HorsePower");
-        SKSEMenuFramework::AddSectionItem("Settings", Settings);
+        SKSEMenuFramework::AddSectionItem(CV(cached::mcmSectSettings), Settings);
         // SKSEMenuFramework::AddSectionItem("Experimental", Experimental);
-        SKSEMenuFramework::AddSectionItem("Debug", Debug);
+        SKSEMenuFramework::AddSectionItem(CV(cached::mcmSectDebug), Debug);
     }
+
+/**/ #undef CV
 }  // namespace ModConfigMenu
