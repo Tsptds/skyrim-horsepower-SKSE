@@ -108,9 +108,9 @@ namespace ModConfigMenu {
                 AddButton(
                     CV(cached::mcmResetSpeedMatchLabel), nullptr,
                     [] {
-                        const float kWalkDefault = ModSettings::_MT_WalkForward.GetValueDefault();
-                        const float kRunDefault = ModSettings::_MT_RunForward.GetValueDefault();
-                        const float kSprintDefault = ModSettings::_MT_Sprint.GetValueDefault();
+                        const float kWalkDefault = 125.112000f;
+                        const float kRunDefault = 500.f;
+                        const float kSprintDefault = 1000.f;
 
                         if (HavokUtil::SetBoundValue(kWalkDefault, MT_Ptr::Type::kWalk)) {
                             ModSettings::_MT_WalkForward.SetValue(kWalkDefault);
